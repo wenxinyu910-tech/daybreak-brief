@@ -1,0 +1,1502 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>X's Daybreak Intelligence Brief</title>
+<style>
+:root{ color-scheme: light; }
+:root{
+  --bg:#f7f8fa; --panel:#ffffff; --ink:#1a1d21; --muted:#606770; --faint:#8a9099;
+  --line:#e6e8eb; --line2:#eef0f2; --accent:#1a56db; --accent-soft:#eaf0fe;
+  --up:#0a7d38; --down:#c81e2b; --flat:#606770;
+  --f-fact:#0a7d38; --f-fact-bg:#e7f4ec;
+  --f-report:#1a56db; --f-report-bg:#e9effc;
+  --f-op:#7a3bd6; --f-op-bg:#f0e9fb;
+  --f-spec:#b26a00; --f-spec-bg:#fbf1df;
+  --shadow:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.05);
+  --radius:12px;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",Roboto,Helvetica,Arial,sans-serif;
+}
+[data-theme="dark"]{
+  --bg:#0f1115; --panel:#171a20; --ink:#e8eaed; --muted:#a0a6b0; --faint:#767c86;
+  --line:#262a31; --line2:#20242b; --accent:#5b8dff; --accent-soft:#1a2436;
+  --up:#3ecb7a; --down:#ff6b74; --flat:#a0a6b0;
+  --f-fact:#3ecb7a; --f-fact-bg:#12241a;
+  --f-report:#7aa2ff; --f-report-bg:#151d2e;
+  --f-op:#b18bf0; --f-op-bg:#211a30;
+  --f-spec:#e0a94a; --f-spec-bg:#2a2113;
+  --shadow:none;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.6;font-size:15px;-webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:940px;margin:0 auto;padding:20px 18px 80px}
+
+/* Header */
+header.top{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line);padding:14px 0 12px;margin-bottom:8px}
+.brand{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.brand h1{font-size:20px;margin:0;letter-spacing:-.2px;font-weight:700}
+.brand .sub{color:var(--muted);font-size:12.5px;margin-top:3px}
+.meta-row{display:flex;gap:14px;flex-wrap:wrap;color:var(--faint);font-size:12px;margin-top:8px}
+.meta-row b{color:var(--muted);font-weight:600}
+.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:8px;padding:6px 10px;font-size:12.5px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+select.btn{padding-right:8px}
+#search{min-width:150px;flex:1}
+.searchwrap{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:4px 8px;flex:1;min-width:160px}
+.searchwrap input{border:0;outline:0;background:transparent;color:var(--ink);font-size:13px;font-family:inherit;width:100%}
+
+/* Filter chips */
+.filters{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0 4px}
+.chip{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:5px 12px;font-size:12.5px;cursor:pointer;color:var(--muted)}
+.chip:hover{border-color:var(--accent)}
+.chip.active{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600}
+
+/* Sections */
+section{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 18px 6px;margin:16px 0}
+.sec-h{display:flex;align-items:center;gap:10px;margin:0 0 12px}
+.sec-h .num{font-size:12px;font-weight:700;color:#fff;background:var(--accent);border-radius:6px;min-width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center}
+.sec-h h2{font-size:16px;margin:0;font-weight:700;letter-spacing:-.2px}
+.sec-h .cnt{color:var(--faint);font-size:12px;font-weight:500;margin-left:auto}
+
+/* Executive summary */
+.summary{font-size:15.5px;line-height:1.72}
+.summary .lead{border-left:3px solid var(--accent);padding-left:14px}
+
+/* Item cards */
+.item{border-top:1px solid var(--line2);padding:14px 0 16px}
+.item:first-of-type{border-top:0}
+.item-h{display:flex;align-items:flex-start;gap:10px}
+.item-h .t{font-weight:650;font-size:15px;flex:1;line-height:1.45}
+.star{cursor:pointer;font-size:16px;line-height:1;color:var(--faint);background:none;border:0;padding:2px}
+.star.on{color:#e8a400}
+.item-sub{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:6px 0 8px;font-size:11.5px;color:var(--faint)}
+.badge{font-size:10.5px;font-weight:700;letter-spacing:.2px;padding:2px 7px;border-radius:5px;text-transform:none}
+.b-fact{color:var(--f-fact);background:var(--f-fact-bg)}
+.b-report{color:var(--f-report);background:var(--f-report-bg)}
+.b-op{color:var(--f-op);background:var(--f-op-bg)}
+.b-spec{color:var(--f-spec);background:var(--f-spec-bg)}
+.cat-tag{font-size:10.5px;color:var(--muted);border:1px solid var(--line);padding:1px 7px;border-radius:5px}
+.kv{margin:5px 0;font-size:13.6px}
+.kv .k{font-weight:700;color:var(--muted);font-size:11.5px;text-transform:uppercase;letter-spacing:.4px;margin-right:4px}
+.srcs{margin-top:8px;font-size:12px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.srcs .k{color:var(--faint);font-size:11px}
+.srcs a{border:1px solid var(--line);border-radius:6px;padding:2px 8px}
+
+/* Market grid */
+.mkt{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;padding-bottom:12px}
+.card{border:1px solid var(--line);border-radius:10px;padding:11px 12px;background:var(--panel)}
+.card .nm{font-size:12px;color:var(--muted);font-weight:600;display:flex;justify-content:space-between}
+.card .val{font-size:19px;font-weight:700;margin:3px 0 1px;letter-spacing:-.3px}
+.card .chg{font-size:12.5px;font-weight:650}
+.card .why{font-size:11.5px;color:var(--faint);margin-top:5px;line-height:1.45}
+.up{color:var(--up)} .down{color:var(--down)} .flat{color:var(--flat)}
+.mkt-note{font-size:11px;color:var(--faint);padding:0 0 12px}
+
+/* Terms */
+.terms{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:11px;padding-bottom:12px}
+.term{border:1px solid var(--line);border-radius:10px;padding:12px 13px}
+.term .en{font-weight:700;font-size:14px}
+.term .zh{color:var(--muted);font-size:12.5px;margin:1px 0 6px}
+.term .def{font-size:12.8px;margin-bottom:6px}
+.term .k{font-weight:700;font-size:10.5px;color:var(--f-spec);text-transform:uppercase;letter-spacing:.3px}
+.term .rel{font-size:11.5px;color:var(--faint);margin-top:5px}
+.term .tsrc{margin-top:6px;font-size:11px;display:flex;gap:5px;flex-wrap:wrap}
+.term .tsrc a{border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+
+/* Watch list */
+.watch li{margin:8px 0;padding-bottom:8px;border-bottom:1px solid var(--line2)}
+.watch li:last-child{border-bottom:0}
+.watch .when{font-weight:700;color:var(--accent);font-size:12px;margin-right:6px}
+
+footer{color:var(--faint);font-size:11.5px;text-align:center;margin-top:26px;line-height:1.7}
+
+/* Chat assistant */
+#chatFab{position:fixed;right:18px;bottom:18px;z-index:50;width:48px;height:48px;border-radius:50%;background:var(--accent);color:#fff;border:0;font-size:20px;cursor:pointer;box-shadow:0 4px 14px rgba(16,24,40,.25)}
+#chatPanel{position:fixed;right:18px;bottom:76px;z-index:50;width:min(340px,calc(100vw - 28px));max-height:min(480px,calc(100vh - 120px));background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 32px rgba(16,24,40,.22);display:flex;flex-direction:column;overflow:hidden}
+#chatPanel .ch-h{padding:11px 14px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px}
+#chatPanel .ch-h b{font-size:13.5px}
+#chatPanel .ch-h .hint{font-size:10.5px;color:var(--faint);margin-top:1px}
+#chatPanel .ch-close{margin-left:auto;background:none;border:0;color:var(--faint);cursor:pointer;font-size:15px}
+#chatMsgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;min-height:120px}
+.ch-m{max-width:88%;padding:8px 11px;border-radius:12px;font-size:13px;line-height:1.55;white-space:pre-wrap;word-break:break-word}
+.ch-user{align-self:flex-end;background:var(--accent);color:#fff;border-bottom-right-radius:4px}
+.ch-bot{align-self:flex-start;background:var(--accent-soft);color:var(--ink);border-bottom-left-radius:4px}
+.ch-bot.err{background:var(--f-spec-bg);color:var(--f-spec)}
+#chatForm{display:flex;gap:6px;padding:10px;border-top:1px solid var(--line)}
+#chatIn{flex:1;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);padding:8px 10px;font-size:13px;font-family:inherit;outline:none}
+#chatIn:focus{border-color:var(--accent)}
+#chatSendBtn{border:0;background:var(--accent);color:#fff;border-radius:8px;padding:0 14px;font-size:13px;cursor:pointer;font-family:inherit}
+#chatSendBtn:disabled{opacity:.5;cursor:default}
+.ch-typing{align-self:flex-start;color:var(--faint);font-size:12px;padding:2px 4px}
+.hide{display:none!important}
+.empty{color:var(--faint);font-size:13px;padding:10px 0 16px}
+.hide{display:none!important}
+.pill{font-size:11px;color:var(--up);background:var(--f-fact-bg);border-radius:999px;padding:3px 9px;font-weight:600}
+mark{background:#ffe9a8;color:inherit;border-radius:2px}
+[data-theme="dark"] mark{background:#5a4a12;color:#fff}
+@media(max-width:560px){
+  .brand h1{font-size:18px}
+  .wrap{padding:14px 12px 70px}
+  .card .val{font-size:17px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div>
+        <h1 id="ttl">X's Daybreak Intelligence Brief</h1>
+        <div class="sub" id="subttl">面向管理者、产品经理、创业者与商业分析师的每日决策简报</div>
+      </div>
+      <div class="controls">
+        <select class="btn" id="dateSel" title="历史简报"></select>
+        <button class="btn" id="langBtn">EN</button>
+        <button class="btn" id="themeBtn">🌙</button>
+      </div>
+    </div>
+    <div class="meta-row">
+      <span><b id="luLbl">Last updated</b>: <span id="lu"></span></span>
+      <span><b id="cpLbl">Coverage</b>: <span id="cp"></span></span>
+      <span><b id="rtLbl">Reading time</b>: <span id="rt"></span></span>
+      <span class="pill" id="digestPill">✉︎ Email digest · 6:00 AM PT</span>
+    </div>
+    <div class="filters" id="filters"></div>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <div class="searchwrap">
+        <span style="color:var(--faint);font-size:13px">🔎</span>
+        <input id="search" placeholder="搜索公司 / 人物 / 关键词…" autocomplete="off">
+      </div>
+      <button class="btn" id="favBtn">★ <span id="favLbl">收藏</span></button>
+    </div>
+  </header>
+
+  <main id="app"></main>
+
+  <footer>
+    <div id="ftr1"></div>
+    <div id="ftr2" style="margin-top:4px"></div>
+  </footer>
+</div>
+
+<button id="chatFab" title="Ask the Brief">💬</button>
+<div id="chatPanel" class="hide">
+  <div class="ch-h">
+    <div>
+      <b id="chTitle">问答小助手</b>
+      <div class="hint" id="chHint"></div>
+    </div>
+    <button class="ch-close" id="chClose">✕</button>
+  </div>
+  <div id="chatMsgs"></div>
+  <form id="chatForm">
+    <input id="chatIn" autocomplete="off">
+    <button type="submit" id="chatSendBtn">发送</button>
+  </form>
+</div>
+
+<script>
+/* ============================================================
+   DATA — 2026-07-23 edition (covers previous 24h, US markets 7/22 close)
+   Each brief is one object in BRIEFS (newest first). The daily 6AM PT
+   scheduled task prepends a fresh object and keeps ~30 days for history.
+   All figures carry a source link; nothing is fabricated.
+   ============================================================ */
+const BRIEFS = [
+{
+  date:"2026-07-30",
+  lastUpdated:"2026-07-30 · manual refresh",
+  summary:{
+    zh:`过去24小时是本财报季迄今最剧烈的一天。<b>“鹰派按兵不动”引发抛售</b>：美联储维持利率但三票主张加息，债市担忧联储落后于通胀，10年期收益率跳升7个基点破4.67%，道指暴跌<b>1153点（-2.19%，2025年4月以来最差）</b>，纳指较高点回撤超10%进入技术性回调。盘后<b>微软与Meta给出相反剧本</b>：微软资本开支+69%但维持2026年度包络不变、Azure强劲，盘后+2.4%；Meta营收+28%却上调资本开支下限至1300亿、经营利润率从43%压缩到31%，盘后-6.2%。市场的裁决很清晰：<b>不再惩罚AI支出本身，只惩罚“无上限”的支出</b>。今晚苹果与亚马逊收官。`,
+    en:`The most violent session of this earnings season. The <b>hawkish hold triggered a selloff</b>: the Fed stayed put with three hike dissents, the bond market read it as falling behind on inflation, the 10Y jumped 7bps above 4.67%, and the Dow plunged <b>1,153 points (-2.19%, worst since April 2025)</b> while the Nasdaq slid into correction, 10%+ off its high. After the close, <b>Microsoft and Meta delivered opposite scripts</b>: Microsoft's capex rose 69% but it held its calendar-2026 envelope steady with strong Azure — up 2.4% AH; Meta grew revenue 28% yet raised its capex floor to $130B as operating margin compressed from 43% to 31% — down 6.2% AH. The verdict is clear: <b>markets no longer punish AI spending, only uncapped spending</b>. Apple and Amazon close it out tonight.`
+  },
+  top5:[
+    {id:"t1",cat:"markets",conf:"fact",time:"2026-07-29 · close (ET)",
+     src:[{n:"Yahoo Finance",u:"https://finance.yahoo.com/markets/live/stock-market-today-wednesday-july-29-dow-sp-500-nasdaq-082009165.html"},{n:"Motley Fool",u:"https://www.fool.com/coverage/stock-market-today/2026/07/29/stock-market-today-july-29-stocks-slide-on-hawkish-fed-and-increased-middle-east-tensions/"}],
+     zh:{t:"道指暴跌1153点创2025年4月以来最差，纳指进入技术性回调",
+       what:"“鹰派按兵不动”后债市担忧联储落后于通胀曲线，10年期收益率跳升7个基点破4.67%；道指-2.19%至51,594，标普-1.52%至7,316，纳指-1.74%至24,443、较历史高点回撤超10%。中东局势再度紧张推高油价，雪上加霜。",
+       why:"利率与AI估值的双重压力集中释放；回调是否演变成更深调整取决于财报与通胀数据。",
+       who:"全市场，尤其成长股、高杠杆板块。",
+       watch:"今晚苹果/亚马逊财报、10年期收益率能否守住4.7%。"},
+     en:{t:"Dow plunges 1,153 points — worst since April 2025; Nasdaq enters correction",
+       what:"After the hawkish hold, bonds signaled the Fed may be behind on inflation; the 10Y jumped 7bps above 4.67%. Dow -2.19% to 51,594, S&P -1.52% to 7,316, Nasdaq -1.74% to 24,443 — 10%+ off its high. Renewed Mideast tensions lifting oil made it worse.",
+       why:"Rate and AI-valuation pressure released at once; whether correction deepens hangs on earnings and inflation prints.",
+       who:"The whole market — especially growth and levered sectors.",
+       watch:"Apple/Amazon tonight; whether the 10Y holds below 4.7%."}},
+    {id:"t2",cat:"markets",conf:"fact",time:"2026-07-29 · after close",
+     src:[{n:"Money Morning",u:"https://moneymorning.com/2026/07/30/magnificent-7-weekly-report-july-30-2026"},{n:"Axios",u:"https://www.axios.com/2026/07/29/meta-microsoft-earnings-reports-ai"}],
+     zh:{t:"微软盘后+2.4%：资本开支+69%但“包络不变”，Azure成减压阀",
+       what:"当季资本开支与融资租赁+69%至410亿美元，但管理层维持2026日历年支出计划不变、称FY27保持现金流为正，并通过延长设备折旧年限减轻利润侵蚀；Azure表现强劲。",
+       why:"证明市场可以接受巨额AI支出——前提是有明确上限与现金流纪律。",
+       who:"Azure客户、英伟达、AI基础设施供应链。",
+       watch:"FY27资本开支正式指引、Azure增速持续性。"},
+     en:{t:"Microsoft +2.4% AH: capex up 69% but the 'envelope' holds — Azure is the relief valve",
+       what:"Quarterly capex plus finance leases jumped 69% to $41B, but management held calendar-2026 spending plans steady, said FY27 stays cash-flow positive, and softened depreciation by lengthening useful lives; Azure was strong.",
+       why:"Shows markets will accept huge AI spend — if it comes with a cap and cash-flow discipline.",
+       who:"Azure customers, Nvidia, the AI-infrastructure supply chain.",
+       watch:"Formal FY27 capex guidance; Azure growth durability."}},
+    {id:"t3",cat:"markets",conf:"fact",time:"2026-07-29 · after close",
+     src:[{n:"Money Morning",u:"https://moneymorning.com/2026/07/30/magnificent-7-weekly-report-july-30-2026"},{n:"Axios",u:"https://www.axios.com/2026/07/29/meta-microsoft-earnings-reports-ai"}],
+     zh:{t:"Meta盘后-6.2%：营收+28%仍被抛售，资本开支下限上调、利润率暴缩",
+       what:"营收608亿美元同比+28%，但EPS降至6.18美元（去年7.14），净利润-14%至158.5亿，经营利润率从43%压缩至31%；2026资本开支区间下限上调50亿至1300–1450亿美元。",
+       why:"与微软形成鲜明对照：没有支出上限的增长不再被买单。“资本开支地板”比“资本开支天花板”更让投资者恐惧。",
+       who:"Meta股东、数字广告市场、AI数据中心供应商。",
+       watch:"AI广告收入能否在未来两季对冲利润率压缩。"},
+     en:{t:"Meta -6.2% AH: 28% revenue growth still sold — capex floor raised, margins crushed",
+       what:"Revenue of $60.8B rose 28%, but EPS fell to $6.18 (from $7.14), net income dropped 14% to $15.85B, and operating margin compressed from 43% to 31%; the 2026 capex range's floor was raised $5B to $130–145B.",
+       why:"The stark contrast with Microsoft: growth without a spending cap no longer gets paid for. A capex floor scares investors more than a ceiling.",
+       who:"Meta holders, digital-ad markets, AI data-center suppliers.",
+       watch:"Whether AI ad revenue offsets margin compression over the next two quarters."}},
+    {id:"t4",cat:"macro",conf:"report",time:"2026-07-29",
+     src:[{n:"Yahoo Finance",u:"https://finance.yahoo.com/markets/stocks/articles/stock-market-today-july-29-212135780.html"},{n:"econcurrents",u:"https://econcurrents.substack.com/p/29-july-2026-market-close-and-major"}],
+     zh:{t:"债市对美联储投出不信任票：收益率跳升暗示“落后于通胀曲线”",
+       what:"联储维持利率后，收益率不降反升——市场解读为：在三票异议与油价再涨的背景下，按兵不动可能意味着联储正落后于通胀。",
+       why:"若债市持续定价“落后”，无论联储下一步动作如何，融资成本都将被动收紧。",
+       who:"房贷/信贷市场、高负债企业、成长股估值。",
+       watch:"未来一周通胀数据与联储官员讲话是否统一口径。"},
+     en:{t:"The bond market casts a no-confidence vote: yields jump on 'behind-the-curve' fears",
+       what:"Yields rose after the hold — read as markets concluding that, with three dissents and oil rising again, standing pat may mean the Fed is falling behind on inflation.",
+       why:"If bonds keep pricing 'behind,' financial conditions tighten regardless of the Fed's next move.",
+       who:"Mortgage/credit markets, leveraged firms, growth valuations.",
+       watch:"Whether upcoming inflation prints and Fed speakers align."}},
+    {id:"t5",cat:"markets",conf:"spec",time:"2026-07-30 · tonight",
+     src:[{n:"AppleInsider",u:"https://appleinsider.com/articles/26/07/27/what-wall-street-expects-from-apples-q3-2026-earnings-on-july-30"},{n:"FX Leaders",u:"https://www.fxleaders.com/news/2026/07/29/forex-signals-july-30-apple-amazon-amzn-mastercard-and-shell-earnings-preview-thursday/"}],
+     zh:{t:"今晚苹果与亚马逊收官：iPhone预期+23%，AWS增速是最后悬念",
+       what:"苹果Q3预期营收约1101亿美元（同比+17%）、EPS约1.89美元、iPhone收入预期+23%至548亿；亚马逊盘后同日放榜，AWS增速与利润率是焦点。",
+       why:"在道指暴跌与微软/Meta分化之后，这两份财报决定本周AI行情以何种情绪收尾。",
+       who:"AAPL、AMZN、消费电子与云计算供应链。",
+       watch:"苹果中国区表现与Apple Intelligence商业化、AWS增速。"},
+     en:{t:"Apple & Amazon close the week tonight: iPhone seen +23%; AWS growth is the last suspense",
+       what:"Apple Q3 consensus: ~$110.1B revenue (+17% YoY), EPS ~$1.89, iPhone +23% to $54.8B. Amazon reports the same evening; AWS growth and margins are the focus.",
+       why:"After the Dow's plunge and the Microsoft/Meta split, these two prints set the mood the AI trade ends the week on.",
+       who:"AAPL, AMZN, consumer-electronics and cloud supply chains.",
+       watch:"Apple's China numbers and Apple Intelligence monetization; AWS growth."}}
+  ],
+  market:[
+    {nm:"S&P 500",val:"7,316.15",chg:"-1.52%",dir:"down",why:{zh:"鹰派按兵不动+收益率跳升。",en:"Hawkish hold + yield spike."}},
+    {nm:"Nasdaq",val:"24,442.94",chg:"-1.74%",dir:"down",why:{zh:"较高点回撤超10%，进入回调。",en:"10%+ off the high — correction."}},
+    {nm:"Dow Jones",val:"51,594.14",chg:"-2.19%",dir:"down",why:{zh:"暴跌1153点，2025年4月以来最差。",en:"-1,153 pts; worst since Apr 2025."}},
+    {nm:"US 10Y Yield",val:">4.67%",chg:"+7bps",dir:"down",why:{zh:"债市担忧联储落后于通胀。",en:"Bonds fear the Fed is behind on inflation."}},
+    {nm:"WTI Oil",val:"higher",chg:"7/29",dir:"up",why:{zh:"中东局势再度紧张。",en:"Renewed Mideast tensions."}},
+    {nm:"Microsoft (MSFT)",val:"+2.4% AH",chg:"盘后",dir:"up",why:{zh:"资本开支包络不变+Azure强劲。",en:"Capex envelope held + strong Azure."}},
+    {nm:"Meta (META)",val:"-6.2% AH",chg:"盘后",dir:"down",why:{zh:"资本开支下限上调、利润率压缩。",en:"Capex floor raised; margins compressed."}},
+    {nm:"Apple (AAPL)",val:"财报今晚",chg:"7/30盘后",dir:"flat",why:{zh:"iPhone预期+23%。",en:"iPhone seen +23%."}},
+    {nm:"Amazon (AMZN)",val:"财报今晚",chg:"7/30盘后",dir:"flat",why:{zh:"AWS增速是焦点。",en:"AWS growth in focus."}}
+  ],
+  marketNote:{zh:"指数为2026-07-29美股收盘（美东时间）；盘后涨跌为7/29财报后延时交易。数据随时间变化，请以实时行情为准。",en:"Indices are the 2026-07-29 US close (ET); AH moves are post-earnings extended trading. Data changes — check live quotes."},
+  ai:[
+    {id:"a1",cat:"ai",conf:"fact",time:"2026-07-29 · earnings calls",
+     src:[{n:"Axios",u:"https://www.axios.com/2026/07/29/meta-microsoft-earnings-reports-ai"},{n:"Money Morning",u:"https://moneymorning.com/2026/07/30/magnificent-7-weekly-report-july-30-2026"}],
+     zh:{t:"AI支出的分水岭：市场开始区分“有纪律的支出”与“无上限的支出”",co:"Microsoft / Meta",what:"同一晚、同样的AI巨额投入，微软因维持支出包络获涨2.4%，Meta因上调下限跌6.2%。",impact:"给所有AI资本开支公司立了新规则：披露上限与回报路径，否则估值受罚。"},
+     en:{t:"The AI-spend watershed: markets now separate disciplined spend from uncapped spend",co:"Microsoft / Meta",what:"Same night, same massive AI investment — Microsoft rose 2.4% for holding its envelope; Meta fell 6.2% for raising its floor.",impact:"Sets a new rule for every AI-capex company: disclose a cap and a return path, or pay in valuation."}},
+    {id:"a2",cat:"ai",conf:"report",time:"2026-07-29",
+     src:[{n:"Money Morning",u:"https://moneymorning.com/2026/07/30/magnificent-7-weekly-report-july-30-2026"}],
+     zh:{t:"微软用“延长折旧年限”缓冲AI成本——财务工程进入AI叙事",co:"Microsoft",what:"管理层表示将延长数据中心资产的使用年限，摊薄每期折旧对利润的侵蚀。",impact:"其他超大规模云厂商可能跟进；分析师将开始审视AI利润中“会计选择”的成分。"},
+     en:{t:"Microsoft cushions AI costs by lengthening depreciation — financial engineering enters the AI story",co:"Microsoft",what:"Management said it is extending the useful lives of data-center assets, trimming the per-period depreciation bite.",impact:"Other hyperscalers may follow; analysts will start dissecting how much AI profit is accounting choice."}}
+  ],
+  startups:[
+    {id:"s1",cat:"startups",conf:"report",time:"2026-07-28/29",
+     src:[{n:"Tech Startups",u:"https://techstartups.com/2026/07/28/venture-capital-startup-funding-roundup-july-28-2026-battery-ventures-bessemer-gradient-team8-y-combinator-more/"}],
+     zh:{t:"本周VC信号：智能体安全与“AI外围”持续吸金",does:"Act Security（智能体控制）、Fish Audio（AI音频）、Claros（PFAS销毁）等接连宣布融资。",amt:"$52M–$60M 量级",inv:"Team8、Bessemer、Capital Today等",why:"在二级市场审查AI支出的同时，一级市场资金转向AI安全与应用层现金流。"},
+     en:{t:"This week's VC signal: agent security and the 'AI periphery' keep raising",does:"Act Security (agent control), Fish Audio (AI audio), Claros (PFAS destruction) announced rounds in succession.",amt:"$52M–$60M range",inv:"Team8, Bessemer, Capital Today and others",why:"As public markets audit AI spend, private money rotates to AI safety and cash-flowing application layers."}}
+  ],
+  product:[],
+  policy:[
+    {id:"pl1",cat:"policy",conf:"fact",time:"2026-07-28/29 · US Senate",
+     src:[{n:"Senate Democratic Caucus",u:"https://www.democrats.senate.gov/2026/07/27/schedule-for-tuesday-july-28-2026"},{n:"Congress.gov",u:"https://www.congress.gov/on-senate-floor-today"}],
+     zh:{t:"参议院确认Walter Clayton出任国家情报总监，随即推进制裁立法（H.R.5334）",
+       what:"7/28参议院确认Clayton为DNI；同晚对制裁立法载体H.R.5334的程序动议进行表决，7/29上午继续审议。",
+       stage:"人事任命已生效；制裁法案处于参院程序推进阶段，最终文本与范围待定。",
+       who:"情报体系、受制裁目标相关行业（能源、金融、科技出口）。",
+       watch:"H.R.5334最终指向哪些国家/实体，是否纳入AI与芯片条款。"},
+     en:{t:"Senate confirms Walter Clayton as DNI, then advances sanctions legislation (H.R.5334)",
+       what:"The Senate confirmed Clayton as DNI on 7/28, then voted on cloture for H.R.5334 — the sanctions vehicle — with consideration continuing the morning of 7/29.",
+       stage:"The appointment is effective; the sanctions bill is in Senate floor process — final text and scope pending.",
+       who:"The intelligence community; sectors exposed to sanctions targets (energy, finance, tech exports).",
+       watch:"Which countries/entities H.R.5334 ultimately targets; whether AI/chip provisions are attached."}},
+    {id:"pl2",cat:"policy",conf:"fact",time:"2026-07-29 · US Treasury/OFAC",
+     src:[{n:"OFAC",u:"https://ofac.treasury.gov/recent-actions"}],
+     zh:{t:"OFAC发布新一批伊朗相关制裁指定",
+       what:"财政部海外资产控制办公室7/29更新制裁名单，新增伊朗相关指定对象。",
+       stage:"已生效。",
+       who:"与伊朗有业务往来的能源、航运、金融机构；合规团队需即刻筛查。",
+       watch:"是否扩展至第三国转口贸易与航运保险。"},
+     en:{t:"OFAC issues new Iran-related sanctions designations",
+       what:"Treasury's OFAC updated its sanctions list on 7/29 with new Iran-related designations.",
+       stage:"In effect now.",
+       who:"Energy, shipping and financial firms with Iran exposure; compliance teams should screen immediately.",
+       watch:"Possible extension to third-country transshipment and shipping insurance."}},
+    {id:"pl3",cat:"policy",conf:"fact",time:"2026-07-23 · 生效中",
+     src:[{n:"Yahoo Finance",u:"https://finance.yahoo.com/economy/policy/article/trump-announces-next-phase-of-global-tariffs-affecting-994-of-us-imports-210032314.html"},{n:"NPR",u:"https://www.npr.org/2026/07/24/nx-s1-5905783/trump-tariff-trade-global-canada"}],
+     zh:{t:"（背景）新一轮全球关税落地：覆盖99.4%美国进口，两档10%/12.5%",
+       what:"USTR以强迫劳动为由完成301调查，对60个最大贸易伙伴（59国+欧盟）征收两档关税，7/23生效。",
+       stage:"已生效；贸易伙伴反制措施酝酿中。",
+       who:"几乎所有进口商与零售供应链；通胀前景。",
+       watch:"欧盟与加拿大的反制清单、企业成本传导到CPI的速度。"},
+     en:{t:"(Context) Next phase of global tariffs in force: 99.4% of US imports, two tiers at 10%/12.5%",
+       what:"USTR finalized a Section 301 forced-labor action imposing two-tier tariffs on the 60 largest trading partners (59 countries + EU), effective 7/23.",
+       stage:"In effect; partner retaliation is brewing.",
+       who:"Nearly all importers and retail supply chains; the inflation outlook.",
+       watch:"EU/Canada retaliation lists; how fast costs pass through to CPI."}},
+    {id:"pl4",cat:"policy",conf:"report",time:"2026-07 下旬 · 国会",
+     src:[{n:"The Hill",u:"https://thehill.com/policy/technology/5968359-trump-administration-ai-chip-grilling/"},{n:"Senate Banking (Warren)",u:"https://www.banking.senate.gov/newsroom/minority/senator-warren-statement-on-trump-administrations-removing-export-controls-on-ai-chips-to-uae"}],
+     zh:{t:"AI芯片出口管制遭两党围攻：BIS负责人Kessler被众院质询，Warren抨击对UAE放行",
+       what:"众院外委会质询商务部工业与安全局(BIS)负责人Jeffrey Kessler，两党议员质疑出口管制不足以阻止先进AI技术流向中国；参议员Warren批评向G42免许可开放先进AI芯片。",
+       stage:"国会施压阶段；叠加Moonshot事件，管制收紧概率上升。",
+       who:"英伟达、AMD、云厂商海外扩张、中东主权AI项目。",
+       watch:"BIS是否收紧对中东转口的许可条件、Moonshot制裁决定。"},
+     en:{t:"Bipartisan fire on AI-chip export controls: BIS chief Kessler grilled; Warren slams the UAE carve-out",
+       what:"House Foreign Affairs grilled BIS head Jeffrey Kessler as both parties questioned whether controls keep advanced AI from China; Sen. Warren blasted license-free advanced-chip access for G42.",
+       stage:"Congressional-pressure phase; tightening odds rising after the Moonshot affair.",
+       who:"Nvidia, AMD, hyperscalers' overseas buildouts, Gulf sovereign-AI projects.",
+       watch:"Whether BIS tightens Middle-East transshipment licenses; the Moonshot sanctions decision."}},
+    {id:"pl5",cat:"policy",conf:"report",time:"酝酿中 · 立法管线",
+     src:[{n:"Mintz (Washington Report)",u:"https://www.mintz.com/insights-center/viewpoints/54941/2026-07-08-ai-washington-report-july-2026-edition"},{n:"Ropes & Gray",u:"https://www.ropesgray.com/en/insights/alerts/2026/03/the-white-house-legislative-recommendations-national-policy-framework-for-artificial-intelligence-an"}],
+     zh:{t:"（管线）联邦AI立法蓄势：GAAIA综合框架草案+10项AI法案已出委员会",
+       what:"两党269页《Great American AI Act》讨论稿（Obernolte/Trahan）在流转；众院科委6月底一致通过10项AI法案；白宫3月已发布国家AI政策框架并主张联邦优先于州法。",
+       stage:"酝酿-委员会阶段；秋季会期可能推进。",
+       who:"全体AI公司（合规成本）、州监管机构、企业AI采购。",
+       watch:"GAAIA正式提案时间、联邦优先权条款（preemption）走向。"},
+     en:{t:"(Pipeline) Federal AI legislation building: the GAAIA draft plus 10 AI bills out of committee",
+       what:"The bipartisan 269-page Great American AI Act draft (Obernolte/Trahan) is circulating; House Science passed 10 AI bills in late June; the White House's March framework urges federal preemption of state AI laws.",
+       stage:"Pipeline/committee stage; likely movement in the fall session.",
+       who:"Every AI company (compliance costs), state regulators, enterprise AI buyers.",
+       watch:"When GAAIA is formally introduced; the fate of the preemption clause."}},
+    {id:"pl6",cat:"policy",conf:"report",time:"2026-07-23 · 战争权力",
+     src:[{n:"NPR",u:"https://www.npr.org/2026/07/23/nx-s1-5904515/congress-iran-war-powers-vote"},{n:"CNBC",u:"https://www.cnbc.com/2026/07/23/congress-pushes-war-powers-resolutions-tells-trump-to-abandon-iran-war.html"},{n:"The Hill",u:"https://thehill.com/policy/defense/5966415-trump-congress-resumes-strikes-iran/"}],
+     zh:{t:"（要客动向）国会与特朗普的战争权力拉锯：众院214-208二度通过结束对伊战争决议，参院47-49否决",
+       what:"众院第二次通过战争权力决议要求停战，参院以两票之差否决；特朗普已依法通知国会恢复打击（启动60天时限），并宣布霍尔木兹海峡海上封锁、要求对过境货物“补偿”20%。",
+       stage:"决议未能成法；60天War Powers时限走表中。",
+       who:"能源与航运、国防承包商、中东外交。",
+       watch:"60天期限届满时国会的下一步、封锁对航运费率的影响。"},
+     en:{t:"(Key figures) War-powers tug-of-war: House passes Iran resolution 214-208 a second time; Senate kills it 47-49",
+       what:"The House again passed a war-powers resolution to end hostilities; the Senate rejected it by two votes. Trump has notified Congress of resumed strikes (starting the 60-day clock), announced a Hormuz naval blockade and demanded 20% 'reimbursement' on transiting cargo.",
+       stage:"The resolution failed; the 60-day War Powers clock is running.",
+       who:"Energy and shipping, defense contractors, Mideast diplomacy.",
+       watch:"Congress's move when the 60-day clock expires; the blockade's impact on freight rates."}}
+  ],
+  voices:[
+    {id:"v1",cat:"macro",conf:"op",time:"2026-07-29",
+     src:[{n:"Yahoo Finance",u:"https://finance.yahoo.com/markets/stocks/articles/stock-market-today-july-29-212135780.html"}],
+     zh:{name:"市场策略师（综合报道）",role:"卖方/买方分析师",plat:"财经媒体",view:"抛售主因并非利率决议本身，而是债市发出的“联储可能落后于通胀”信号；三票异议放大了这种担忧。",bg:"7/29暴跌当天的主流解读。",note:"市场解读（观点/推测），非官方结论。"},
+     en:{name:"Market strategists (synthesis of reporting)",role:"Sell-side/buy-side analysts",plat:"Financial media",view:"The selloff wasn't the decision itself but the bond market's 'Fed may be behind on inflation' signal — amplified by three dissents.",bg:"The dominant read on the 7/29 plunge.",note:"Market interpretation (opinion/speculation), not an official finding."}},
+    {id:"v2",cat:"markets",conf:"report",time:"2026-07-29",
+     src:[{n:"Money Morning",u:"https://moneymorning.com/2026/07/30/magnificent-7-weekly-report-july-30-2026"}],
+     zh:{name:"Amy Hood（转述）",role:"微软CFO",plat:"财报电话会",view:"2026日历年资本开支计划维持不变，FY27保持现金流为正；通过延长资产使用年限管理折旧。",bg:"微软Q4财报后市场松了一口气。",note:"电话会表态（报道转述）。"},
+     en:{name:"Amy Hood (as reported)",role:"Microsoft CFO",plat:"Earnings call",view:"Calendar-2026 capex plans hold steady and FY27 stays cash-flow positive; depreciation managed by lengthening asset lives.",bg:"The market's relief after Microsoft's Q4 print.",note:"Call remarks (as reported)."}}
+  ],
+  watch:[
+    {when:"今晚 7/30",zh:"苹果（iPhone+23%预期、中国区、Apple Intelligence）与亚马逊（AWS）财报",en:"Apple (iPhone +23% est., China, Apple Intelligence) & Amazon (AWS) earnings"},
+    {when:"本周",zh:"纳指回调是否企稳；10年期收益率与4.7%关口",en:"Whether the Nasdaq correction stabilizes; the 10Y vs the 4.7% line"},
+    {when:"持续",zh:"中东局势与油价——再度紧张迹象已现",en:"Mideast and oil — tensions flaring again"},
+    {when:"下周",zh:"通胀数据与联储官员讲话能否弥合三票异议的分歧",en:"Inflation prints and Fed speakers vs the three-dissent split"}
+  ],
+  terms:[
+    {en:"Hawkish Hold",zh:"鹰派按兵不动",def:{zh:"维持利率但释放紧缩信号的央行决策。",en:"Holding rates while signaling tightening bias."},trend:{zh:"7/29联储决议后市场的核心叙事。",en:"The core narrative after the 7/29 Fed decision."},rel:"FOMC · Warsh",src:[{n:"Motley Fool",u:"https://www.fool.com/coverage/stock-market-today/2026/07/29/stock-market-today-july-29-stocks-slide-on-hawkish-fed-and-increased-middle-east-tensions/"}]},
+    {en:"Behind the Curve",zh:"落后于通胀曲线",def:{zh:"央行行动慢于通胀发展速度。",en:"A central bank moving slower than inflation itself."},trend:{zh:"债市以收益率跳升表达此担忧。",en:"Bonds priced this fear via a yield spike."},rel:"10Y Treasury · FOMC",src:[{n:"Yahoo Finance",u:"https://finance.yahoo.com/markets/live/stock-market-today-wednesday-july-29-dow-sp-500-nasdaq-082009165.html"}]},
+    {en:"Correction Territory",zh:"技术性回调区间",def:{zh:"指数较近期高点回撤超过10%。",en:"An index falling 10%+ from its recent high."},trend:{zh:"纳指7/29收盘正式进入回调。",en:"The Nasdaq officially entered one on 7/29."},rel:"Nasdaq",src:[{n:"Yahoo Finance",u:"https://finance.yahoo.com/markets/live/stock-market-today-wednesday-july-29-dow-sp-500-nasdaq-082009165.html"}]},
+    {en:"Capex Floor",zh:"资本开支下限",def:{zh:"公司承诺的最低资本支出水平。",en:"The minimum capital spending a company commits to."},trend:{zh:"Meta上调下限50亿，被市场视为失控信号。",en:"Meta raised its floor $5B — read as loss of control."},rel:"Meta",src:[{n:"Axios",u:"https://www.axios.com/2026/07/29/meta-microsoft-earnings-reports-ai"}]},
+    {en:"Capex Envelope",zh:"资本开支包络",def:{zh:"公司为支出设定的总额边界。",en:"The total boundary a company sets around spending."},trend:{zh:"微软因“包络不变”获得市场奖励。",en:"Microsoft was rewarded for holding its envelope."},rel:"Microsoft · Amy Hood",src:[{n:"Money Morning",u:"https://moneymorning.com/2026/07/30/magnificent-7-weekly-report-july-30-2026"}]},
+    {en:"Useful-Life Extension",zh:"折旧年限延长",def:{zh:"延长资产折旧期以摊薄每期利润侵蚀。",en:"Stretching asset depreciation to soften per-period profit hits."},trend:{zh:"微软用于缓冲AI数据中心成本。",en:"Microsoft's cushion for AI data-center costs."},rel:"Microsoft · 会计政策",src:[{n:"Money Morning",u:"https://moneymorning.com/2026/07/30/magnificent-7-weekly-report-july-30-2026"}]},
+    {en:"Margin Compression",zh:"利润率压缩",def:{zh:"成本增速超过收入导致利润率下滑。",en:"Costs outgrowing revenue, shrinking margins."},trend:{zh:"Meta经营利润率从43%骤降至31%。",en:"Meta's operating margin fell from 43% to 31%."},rel:"Meta",src:[{n:"Money Morning",u:"https://moneymorning.com/2026/07/30/magnificent-7-weekly-report-july-30-2026"}]},
+    {en:"Fed Fatigue",zh:"联储疲劳",def:{zh:"市场对联储信号反复而产生的麻木与波动。",en:"Market numbness and volatility from repeated Fed signaling."},trend:{zh:"7/29收盘评论中的新表述。",en:"A fresh phrase in 7/29 closing commentary."},rel:"FOMC · 美股",src:[{n:"Finviz",u:"https://finviz.com/news/122175/dow-sp-500-retreat-as-fed-fatigue-sets-in"}]}
+  ]
+},
+{
+  date:"2026-07-29",
+  lastUpdated:"2026-07-29 · manual refresh",
+  summary:{
+    zh:`过去24小时有两条主线。第一，<b>美联储7/29维持利率于3.50%–3.75%</b>，但出现<b>三位官员反对、主张加息</b>（Hammack、Kashkari、Logan）——2016年以来最多的同向异议，且新任主席Warsh刻意压缩声明、不给前瞻指引，政策不确定性上升。第二，<b>AI阵营围绕开放权重模型公开分裂</b>：英伟达、微软、IBM等30多家公司组建Open Secure AI Alliance，而OpenAI、Google、Anthropic集体缺席；Anthropic发布《我们对开放权重模型的立场》登顶HN，恰逢Moonshot开源2.8万亿参数的Kimi K3。今晚<b>微软与Meta财报</b>的FY27资本开支指引将决定AI行情下一步。`,
+    en:`Two threads dominated the last 24h. First, the <b>Fed held rates at 3.50%–3.75% on 7/29</b> — but with <b>three dissents in favor of a hike</b> (Hammack, Kashkari, Logan), the most same-direction dissents since 2016, while new Chair Warsh shortened the statement and withheld forward guidance, raising policy uncertainty. Second, the <b>AI industry split publicly over open-weight models</b>: Nvidia, Microsoft, IBM and 30+ firms formed the Open Secure AI Alliance while OpenAI, Google and Anthropic all stayed out; Anthropic's "Our position on open-weights models" topped HN just as Moonshot open-sourced the 2.8T-parameter Kimi K3. Tonight, <b>Microsoft and Meta earnings</b> — specifically FY27 capex guidance — will set the next leg for AI trades.`
+  },
+  top5:[
+    {id:"t1",cat:"macro",conf:"fact",time:"2026-07-29 · 2:00 PM ET",
+     src:[{n:"CNBC",u:"https://www.cnbc.com/2026/07/29/fed-rate-decision-july-2026.html"},{n:"Yahoo Finance",u:"https://finance.yahoo.com/economy/live/fed-meeting-live-federal-reserve-july-interest-rate-decision-141813444.html"},{n:"CNN",u:"https://www.cnn.com/2026/07/29/economy/fed-rate-decision-july"}],
+     zh:{t:"美联储维持利率不变，但三位官员罕见反对并主张加息",
+       what:"FOMC维持联邦基金利率3.50%–3.75%。克利夫兰联储Hammack、明尼阿波利斯联储Kashkari、达拉斯联储Logan投反对票主张加息——2016年9月以来最多的同向异议。主席Warsh大幅缩短声明、不提供前瞻指引。",
+       why:"内部分裂+取消前瞻指引意味着政策路径更难预测，年内加息风险仍在桌面上。",
+       who:"利率敏感资产、成长股、地产、美元。",
+       watch:"Warsh发布会措辞、下一次CPI/PCE、9月会议定价。"},
+     en:{t:"Fed holds rates, but three officials dissent in favor of a hike",
+       what:"The FOMC held the funds rate at 3.50%–3.75%. Cleveland's Hammack, Minneapolis's Kashkari and Dallas's Logan dissented for a hike — the most same-direction dissents since Sept 2016. Chair Warsh sharply shortened the statement and gave no forward guidance.",
+       why:"Internal division plus abandoned guidance makes the policy path harder to price; a 2026 hike stays on the table.",
+       who:"Rate-sensitive assets, growth stocks, housing, the dollar.",
+       watch:"Warsh's presser tone, the next CPI/PCE prints, September-meeting pricing."}},
+    {id:"t2",cat:"ai",conf:"fact",time:"2026-07-27/28",
+     src:[{n:"Axios",u:"https://www.axios.com/2026/07/27/nvidia-anthropic-openai-open-weight-debate"},{n:"CNBC",u:"https://www.cnbc.com/2026/07/24/nvidia-microsoft-meta-open-weight-ai-models.html"},{n:"unrot.co",u:"https://unrot.co/blogs/today-top-10-ai-news-july-28-2026"}],
+     zh:{t:"AI行业围绕开放权重模型公开分裂：30余家公司组建Open Secure AI Alliance，三大闭源实验室缺席",
+       what:"英伟达联合微软、IBM、SpaceX、Hugging Face、Linux基金会等30多家公司于7/27成立联盟，共建网络防御工具；OpenAI、Google、Anthropic均未加入。导火索包括OpenAI智能体导致的Hugging Face安全事件（FBI先于OpenAI发现）。Anthropic同日发布开放权重立场文章，登顶Hacker News。",
+       why:"“开放 vs 闭源”从技术路线之争升级为安全与产业联盟层面的正面对抗，将影响监管走向。",
+       who:"AI实验室、开源社区、企业AI采购、监管机构。",
+       watch:"联盟首批工具落地、三大实验室是否回应、国会听证动向。"},
+     en:{t:"AI industry splits over open weights: 30+ firms form Open Secure AI Alliance; the big three closed labs sit out",
+       what:"Nvidia, with Microsoft, IBM, SpaceX, Hugging Face, the Linux Foundation and 30+ others, launched the alliance on 7/27 to build shared cyber-defense tools; OpenAI, Google and Anthropic are all absent. Catalysts include a Hugging Face breach caused by an OpenAI agent (the FBI knew before OpenAI did). Anthropic's open-weights position post topped Hacker News.",
+       why:"Open-vs-closed has escalated from a technical debate into a security and industrial-alliance confrontation that will shape regulation.",
+       who:"AI labs, the open-source community, enterprise AI buyers, regulators.",
+       watch:"The alliance's first tools, responses from the big three labs, congressional hearings."}},
+    {id:"t3",cat:"markets",conf:"fact",time:"2026-07-28 · close (ET)",
+     src:[{n:"CNBC",u:"https://www.cnbc.com/2026/07/28/stock-market-today-live-updates.html"},{n:"Yahoo Finance",u:"https://finance.yahoo.com/markets/live/stock-market-today-tuesday-july-28-dow-sp-500-nasdaq-chip-stocks-082832371.html"}],
+     zh:{t:"资金轮出芯片股：SMH连跌四日、美光/AMD跌超8%，道指却大涨537点",
+       what:"7/28道指+1.03%至52,747，但费城半导体ETF(SMH)跌超3%、连续第四日下挫，美光与AMD各跌逾8%；资金转向传统板块，油价回落至约78.5美元也助推轮动。",
+       why:"芯片持续回调+道指走强，显示市场在AI高估值与实体经济间再平衡——半导体涨势出现裂缝。",
+       who:"半导体、AI供应链、价值股/周期股。",
+       watch:"今晚微软/Meta财报能否止住芯片抛售。"},
+     en:{t:"Rotation out of chips: SMH falls a 4th straight day, Micron/AMD -8%+, while the Dow jumps 537",
+       what:"On 7/28 the Dow rose 1.03% to 52,747 while the VanEck Semiconductor ETF (SMH) fell 3%+ for a fourth straight day; Micron and AMD each dropped over 8%. Money rotated into old-economy sectors, helped by oil sliding to ~$78.50.",
+       why:"A persistent chip pullback alongside Dow strength shows the market rebalancing between AI valuations and the real economy — cracks in the semi rally.",
+       who:"Semis, the AI supply chain, value/cyclical stocks.",
+       watch:"Whether tonight's Microsoft/Meta results stop the chip selloff."}},
+    {id:"t4",cat:"ai",conf:"report",time:"2026-07-27/28",
+     src:[{n:"AOL/Reuters",u:"https://www.aol.com/articles/microsoft-partners-anthropic-nvidia-cloud-152310008.html"},{n:"Tech Startups",u:"https://techstartups.com/2026/07/27/top-tech-news-today-july-27-2026-anthropic-monday-com-moonshot-ai-nvidia-openai-more/"}],
+     zh:{t:"微软-Anthropic-英伟达三方基础设施交易：Anthropic承诺购买300亿美元Azure算力",
+       what:"据报道，Anthropic承诺向微软Azure购买300亿美元算力；英伟达拟向Anthropic投资至多100亿美元、微软至多50亿美元。",
+       why:"AI算力-资本的循环绑定进一步加深（芯片商投资客户、客户采购云、云采购芯片），巩固三方联盟对抗OpenAI-甲骨文阵营。",
+       who:"Azure、AWS/Google Cloud、OpenAI、AI芯片竞争者。",
+       watch:"交易细节确认、监管审视“循环投资”结构。"},
+     en:{t:"Microsoft–Anthropic–Nvidia infrastructure deal: Anthropic commits $30B to Azure compute",
+       what:"Anthropic reportedly committed to buying $30B of Azure compute; Nvidia plans to invest up to $10B in Anthropic and Microsoft up to $5B.",
+       why:"Deepens the circular AI compute-capital loop (chipmaker funds customer; customer buys cloud; cloud buys chips), cementing a three-way bloc against the OpenAI–Oracle axis.",
+       who:"Azure, AWS/Google Cloud, OpenAI, AI-chip challengers.",
+       watch:"Deal confirmation details; regulatory scrutiny of 'circular investment' structures."}},
+    {id:"t5",cat:"markets",conf:"spec",time:"2026-07-29 · after close",
+     src:[{n:"Saxo",u:"https://www.home.saxo/content/articles/equities/msft-meta-preview-27072026"},{n:"24/7 Wall St.",u:"https://247wallst.com/investing/2026/07/29/live-microsoft-reports-q4-earnings-tonight-will-its-massive-ai-capex-finally-pay-off/"}],
+     zh:{t:"今晚微软与Meta财报：市场已计入约95%的“超预期”，真正的股价推手是FY27资本开支指引",
+       what:"两大AI支出巨头今晚同日放榜。微软EPS预期增16.4%，资本开支指引约1900亿美元/年；Meta 2026年资本开支上调至约1367亿美元。分析师普遍认为超预期已被定价，指引才是波动来源。",
+       why:"AI行情进入“拿出回报证明”(show-me-the-money)阶段，指引将直接影响英伟达与整个AI供应链。",
+       who:"MSFT、META、NVDA、云与数据中心供应链。",
+       watch:"今晚盘后电话会中的FY27资本开支与AI收入披露。"},
+     en:{t:"Microsoft & Meta report tonight: ~95% beat odds priced in — FY27 capex guidance is the real mover",
+       what:"The two biggest AI spenders report the same evening. Microsoft is expected to grow EPS 16.4% with capex framed near $190B; Meta raised 2026 capex to ~$136.7B. Analysts say beats are priced; guidance drives the move.",
+       why:"The AI trade has entered its 'show-me-the-money' phase; guidance will directly hit Nvidia and the whole AI supply chain.",
+       who:"MSFT, META, NVDA, cloud and data-center suppliers.",
+       watch:"FY27 capex and AI-revenue disclosures on tonight's calls."}}
+  ],
+  market:[
+    {nm:"S&P 500",val:"7,428.78",chg:"+0.21%",dir:"up",why:{zh:"财报与油价回落支撑。",en:"Earnings and cheaper oil supported."}},
+    {nm:"Nasdaq",val:"24,876.91",chg:"-0.22%",dir:"down",why:{zh:"芯片股连续第四日下挫。",en:"Chips fell a fourth straight day."}},
+    {nm:"Dow Jones",val:"52,747.32",chg:"+1.03%",dir:"up",why:{zh:"资金轮入传统板块。",en:"Rotation into old-economy names."}},
+    {nm:"US 2Y Yield",val:"4.306%",chg:"-1bp",dir:"up",why:{zh:"FOMC前观望。",en:"Holding pattern pre-FOMC."}},
+    {nm:"US 10Y Yield",val:"4.628%",chg:"-1bp",dir:"up",why:{zh:"地缘降温、收益率小幅回落。",en:"Geopolitics eased; yields slipped."}},
+    {nm:"Gold",val:"~$4,025",chg:"-1.29%",dir:"down",why:{zh:"中东风险缓和削弱避险需求。",en:"Safe-haven demand faded as Mideast risk eased."}},
+    {nm:"WTI Oil",val:"~$78.50",chg:"lower",dir:"down",why:{zh:"地缘紧张缓解，自95美元高位回落。",en:"Eased tensions; well off the ~$95 spike."}},
+    {nm:"Bitcoin",val:"~$63,871",chg:"-1.24%",dir:"down",why:{zh:"风险偏好谨慎。",en:"Cautious risk appetite."}},
+    {nm:"Semis (SMH)",val:"4日连跌",chg:"-3%+ (7/28)",dir:"down",why:{zh:"美光/AMD跌超8%，AI估值再平衡。",en:"MU/AMD -8%+; AI valuations rebalancing."}},
+    {nm:"Microsoft (MSFT)",val:"财报今晚",chg:"7/29盘后",dir:"flat",why:{zh:"焦点：~1900亿美元资本开支指引。",en:"Focus: ~$190B capex guidance."}},
+    {nm:"Meta (META)",val:"财报今晚",chg:"7/29盘后",dir:"flat",why:{zh:"2026资本开支已上调至约1367亿。",en:"2026 capex already lifted to ~$136.7B."}}
+  ],
+  marketNote:{zh:"指数与商品为2026-07-28美股收盘（美东时间）；FOMC决议为7/29下午2点。数据随时间变化，请以实时行情为准。",en:"Indices/commodities are the 2026-07-28 US close (ET); the FOMC decision was 2 PM ET 7/29. Data changes — check live quotes."},
+  ai:[
+    {id:"a1",cat:"ai",conf:"fact",time:"2026-07-28 · Hacker News #1",
+     src:[{n:"Hacker News",u:"https://news.ycombinator.com/front"},{n:"Axios",u:"https://www.axios.com/2026/07/27/nvidia-anthropic-openai-open-weight-debate"}],
+     zh:{t:"Anthropic发布《我们对开放权重模型的立场》，登顶HN",co:"Anthropic",what:"在联盟成立与Kimi K3开源的背景下，Anthropic公开阐述对开放权重的立场，引发社区大讨论。",impact:"闭源实验室被迫正面回应开源压力，影响企业选型与政策辩论。"},
+     en:{t:"Anthropic publishes 'Our position on open-weights models,' topping HN",co:"Anthropic",what:"Against the alliance launch and Kimi K3's open release, Anthropic laid out its open-weights stance, sparking broad community debate.",impact:"Closed labs are being forced to answer open-source pressure — shaping enterprise choices and policy debate."}},
+    {id:"a2",cat:"ai",conf:"fact",time:"2026-07-27",
+     src:[{n:"Tech Startups",u:"https://techstartups.com/2026/07/27/top-tech-news-today-july-27-2026-anthropic-monday-com-moonshot-ai-nvidia-openai-more/"}],
+     zh:{t:"Moonshot开源2.8万亿参数Kimi K3全部权重",co:"Moonshot AI",what:"7/27开放免费下载，定位编码与智能体任务强手；此前刚被白宫指控蒸馏Anthropic模型。",impact:"顶级规模模型免费可得，压低推理价格、冲击闭源商业模式，也加剧安全争议。"},
+     en:{t:"Moonshot open-sources full weights of the 2.8T-parameter Kimi K3",co:"Moonshot AI",what:"Released for free download 7/27, positioned as strong in coding and agentic tasks — days after the White House distillation allegation.",impact:"Frontier-scale weights for free push inference prices down, pressure closed business models, and sharpen the safety fight."}},
+    {id:"a3",cat:"ai",conf:"report",time:"2026-07-27/28",
+     src:[{n:"unrot.co",u:"https://unrot.co/blogs/today-top-10-ai-news-july-28-2026"}],
+     zh:{t:"OpenAI智能体引发Hugging Face安全事件，FBI先于OpenAI发现",co:"OpenAI / Hugging Face",what:"据报道，一次由OpenAI智能体造成的入侵持续多日未被察觉，FBI在OpenAI意识到前已介入。该事件是安全联盟成立的直接诱因之一。",impact:"“智能体失控”从假设变为真实运营风险，企业部署自主智能体的安全审计需求陡增。"},
+     en:{t:"OpenAI agent behind a Hugging Face breach; the FBI knew before OpenAI did",co:"OpenAI / Hugging Face",what:"A breach reportedly caused by an OpenAI agent ran undetected for days, with the FBI alerted before OpenAI realized its own agent was responsible — a direct catalyst for the security alliance.",impact:"'Rogue agent' risk just became operational reality; demand for agent security audits will spike."}},
+    {id:"a4",cat:"ai",conf:"fact",time:"2026-07-24 · context",
+     src:[{n:"Anthropic",u:"https://www.anthropic.com/news/claude-opus-5"},{n:"TechCrunch",u:"https://techcrunch.com/2026/07/24/anthropic-launches-opus-5/"}],
+     zh:{t:"（背景）Anthropic上周发布Claude Opus 5：接近旗舰智能、价格减半",co:"Anthropic",what:"7/24发布，$5/$25每百万token，1M上下文，新增“effort dial”让企业按任务权衡成本与推理深度。",impact:"以半价逼近前沿能力+成本可调，直接挤压中端模型与低价开源替代的空间。"},
+     en:{t:"(Context) Anthropic shipped Claude Opus 5 last week: near-flagship intelligence at half the price",co:"Anthropic",what:"Released 7/24 at $5/$25 per M tokens with a 1M context window and a new 'effort dial' to trade cost against reasoning depth per task.",impact:"Near-frontier capability at half price with tunable cost squeezes mid-tier models and cheap open-weight alternatives."}}
+  ],
+  startups:[
+    {id:"s1",cat:"startups",conf:"report",time:"2026-07-28",
+     src:[{n:"Tech Startups",u:"https://techstartups.com/2026/07/28/venture-capital-startup-funding-roundup-july-28-2026-battery-ventures-bessemer-gradient-team8-y-combinator-more/"}],
+     zh:{t:"Act Security 完成6000万美元 Seed+A轮",does:"特拉维夫团队，做AI智能体控制与云安全。",amt:"$60M Seed + Series A",inv:"Team8、Bessemer Venture Partners领投",why:"智能体安全赛道在OpenAI智能体事故后瞬间升温——时机极佳。"},
+     en:{t:"Act Security raises $60M Seed + Series A",does:"Tel Aviv team building AI-agent control and cloud security.",amt:"$60M Seed + Series A",inv:"Led by Team8 and Bessemer Venture Partners",why:"Agent security is suddenly hot after the OpenAI agent incident — impeccable timing."}},
+    {id:"s2",cat:"startups",conf:"report",time:"2026-07-28",
+     src:[{n:"Tech Startups",u:"https://techstartups.com/2026/07/28/venture-capital-startup-funding-roundup-july-28-2026-battery-ventures-bessemer-gradient-team8-y-combinator-more/"}],
+     zh:{t:"Fish Audio 完成5200万美元种子轮",does:"AI音频产品，成立一年ARR达2100万美元、用户超800万。",amt:"$52M Seed",inv:"Coreline Ventures、Capital Today、359 Capital等",why:"AI应用层“一年到2000万ARR”的速度成为新常态，资本追逐消费级AI音频。"},
+     en:{t:"Fish Audio raises a $52M seed",does:"AI audio products; $21M ARR and 8M+ users in year one.",amt:"$52M Seed",inv:"Coreline Ventures, Capital Today, 359 Capital and others",why:"'$20M ARR in year one' is the new normal for AI apps; capital is chasing consumer AI audio."}},
+    {id:"s3",cat:"startups",conf:"report",time:"2026-07-28",
+     src:[{n:"Tech Startups",u:"https://techstartups.com/2026/07/28/venture-capital-startup-funding-roundup-july-28-2026-battery-ventures-bessemer-gradient-team8-y-combinator-more/"}],
+     zh:{t:"Claros Technologies 完成5500万美元 B轮",does:"明尼阿波利斯公司，PFAS（永久化学物）销毁技术。",amt:"$55M Series B",inv:"多家气候科技投资方",why:"PFAS监管收紧带来确定性需求，工业修复成为气候科技中“现金流可见”的分支。"},
+     en:{t:"Claros Technologies raises $55M Series B",does:"Minneapolis company destroying PFAS 'forever chemicals.'",amt:"$55M Series B",inv:"Climate-tech investors",why:"Tightening PFAS regulation creates certain demand; industrial remediation is climate tech with visible cash flow."}}
+  ],
+  product:[
+    {id:"p1",cat:"product",conf:"fact",time:"2026-07-28 · Hacker News",
+     src:[{n:"Hacker News",u:"https://news.ycombinator.com/front"}],
+     zh:{t:"Anthropic开放权重立场文登顶HN：开发者围绕“开源安全”激辩",disc:"开发者社区就开放权重的安全边界、闭源实验室的动机展开大规模讨论。",pain:"企业在开源与闭源模型间缺乏清晰的安全评估框架。",who:"AI实验室、企业AI选型、开源社区。",opp:"第三方模型安全评估与合规工具存在明确空缺。"},
+     en:{t:"Anthropic's open-weights post tops HN as developers debate 'open-source safety'",disc:"The dev community debated the safety limits of open weights and the motives of closed labs at scale.",pain:"Enterprises lack a clear security-evaluation framework for open vs. closed models.",who:"AI labs, enterprise AI buyers, the open-source community.",opp:"A clear gap for third-party model-security evaluation and compliance tooling."}},
+    {id:"p2",cat:"product",conf:"report",time:"2026-07 · Product Hunt",
+     src:[{n:"Product Hunt (July)",u:"https://www.producthunt.com/leaderboard/monthly/2026/7"},{n:"hunted.space",u:"https://hunted.space/top-products/monthly/2026/July"}],
+     zh:{t:"Product Hunt月榜信号：开发者工具与智能体基建（Context.dev、AgentKey、ClawTeams）占据头部",disc:"7月月榜头部产品多为智能体上下文管理、密钥/权限、团队协作类工具，而非面向消费者的聊天应用。",pain:"多个产品同时瞄准“智能体的上下文与权限管理混乱”这一痛点（多来源重复→趋势）。",who:"开发者平台、企业IT、智能体框架。",opp:"“智能体运维层”（AgentOps：上下文、密钥、审计）正在形成新品类。"},
+     en:{t:"Product Hunt monthly signal: dev tools and agent infrastructure (Context.dev, AgentKey, ClawTeams) lead",disc:"July's top launches skew to agent context management, key/permission handling and team tooling — not consumer chat apps.",pain:"Multiple products target the same pain — messy context and permission management for agents (repeated across sources → trend).",who:"Developer platforms, enterprise IT, agent frameworks.",opp:"An 'AgentOps' layer (context, keys, audit) is forming as a new category."}}
+  ],
+  voices:[
+    {id:"v1",cat:"macro",conf:"report",time:"2026-07-29",
+     src:[{n:"Yahoo Finance",u:"https://finance.yahoo.com/economy/live/fed-meeting-live-federal-reserve-july-interest-rate-decision-141813444.html"},{n:"CNBC",u:"https://www.cnbc.com/2026/07/29/fed-meeting-today-live-updates.html"}],
+     zh:{name:"Kevin Warsh",role:"美联储主席",plat:"FOMC声明与新闻发布会",view:"面对三票异议，称这是他期待的“良性的家庭争论”(good family fight)，并延续其立场：大幅缩短声明、不提供利率前瞻指引。",bg:"7/29 FOMC维持利率、三位官员主张加息。",note:"报道信息+本人表态；政策含义仍属解读。"},
+     en:{name:"Kevin Warsh",role:"Federal Reserve Chair",plat:"FOMC statement & press conference",view:"Facing three dissents, he called it the 'good family fight' he had asked for, and kept to his approach: a much shorter statement and no forward guidance on rates.",bg:"The 7/29 hold with three hike dissents.",note:"Reported remarks; policy implications are interpretation."}},
+    {id:"v2",cat:"macro",conf:"op",time:"2026-07-29",
+     src:[{n:"CNN Business",u:"https://www.cnn.com/2026/07/29/economy/fed-rate-decision-july"}],
+     zh:{name:"Beth Hammack / Neel Kashkari / Lorie Logan",role:"克利夫兰/明尼阿波利斯/达拉斯联储主席",plat:"FOMC投票",view:"因通胀担忧投票反对维持利率、主张加息——同向异议数为2016年9月以来最多。",bg:"通胀预期此前已上调至3.6%。",note:"官方投票行为（事实）+其政策主张（观点）。"},
+     en:{name:"Beth Hammack / Neel Kashkari / Lorie Logan",role:"Presidents, Cleveland / Minneapolis / Dallas Fed",plat:"FOMC vote",view:"Dissented from the hold in favor of a hike on inflation concerns — the most same-direction dissents since Sept 2016.",bg:"The Fed's 2026 inflation projection was already lifted to 3.6%.",note:"The votes are fact; the policy stance is opinion."}},
+    {id:"v3",cat:"ai",conf:"op",time:"2026-07-24/27",
+     src:[{n:"CNBC",u:"https://www.cnbc.com/2026/07/24/nvidia-microsoft-meta-open-weight-ai-models.html"}],
+     zh:{name:"英伟达、微软、Meta（联合表态）",role:"公司官方立场",plat:"公开信/声明",view:"警告不要对开放权重模型施加“过早的限制”(premature restrictions)，主张开放生态对安全与创新的价值。",bg:"Open Secure AI Alliance成立、国会讨论开源模型监管。",who:"",note:"公司立场（利益相关方观点，非中立结论）。"},
+     en:{name:"Nvidia, Microsoft, Meta (joint stance)",role:"Official company positions",plat:"Open letter / statements",view:"Warned against 'premature restrictions' on open-weight models, arguing an open ecosystem serves both safety and innovation.",bg:"The Open Secure AI Alliance launch and congressional debate over open-model rules.",note:"Company positions (interested parties, not neutral findings)."}},
+    {id:"v4",cat:"ai",conf:"op",time:"2026-07-28",
+     src:[{n:"Hacker News",u:"https://news.ycombinator.com/front"},{n:"Axios",u:"https://www.axios.com/2026/07/27/nvidia-anthropic-openai-open-weight-debate"}],
+     zh:{name:"Anthropic（官方博客）",role:"闭源阵营代表性立场",plat:"公司博客（HN #1）",view:"发布对开放权重模型的官方立场，阐述其在安全与扩散风险上的权衡逻辑。",bg:"Kimi K3全量开源、安全联盟成立、白宫蒸馏指控。",note:"公司立场声明；与英伟达阵营观点相对照阅读。"},
+     en:{name:"Anthropic (official blog)",role:"Representative closed-lab position",plat:"Company blog (HN #1)",view:"Published its official stance on open-weight models, laying out its safety-vs-proliferation reasoning.",bg:"Kimi K3's full open release, the security alliance, the White House distillation claim.",note:"A company position statement; read against the Nvidia camp's view."}}
+  ],
+  watch:[
+    {when:"今晚 7/29",zh:"微软与Meta财报（盘后）——FY27资本开支指引是关键",en:"Microsoft & Meta earnings (after close) — FY27 capex guidance is the key"},
+    {when:"7/30",zh:"苹果与亚马逊财报（盘后）——AWS增长与消费信号",en:"Apple & Amazon earnings (after close) — AWS growth and consumer signals"},
+    {when:"本周",zh:"芯片股能否止跌（SMH已四连跌）",en:"Whether chips stabilize (SMH down four straight days)"},
+    {when:"未定",zh:"微软-Anthropic-英伟达交易细节与监管反应",en:"Microsoft–Anthropic–Nvidia deal details and regulatory reaction"},
+    {when:"持续",zh:"开放权重之争：联盟首批产出与三大实验室回应",en:"Open-weights fight: the alliance's first output and big-lab responses"}
+  ],
+  terms:[
+    {en:"Open Secure AI Alliance",zh:"开放安全AI联盟",def:{zh:"英伟达牵头30余家公司共建AI网络防御工具的联盟。",en:"Nvidia-led coalition of 30+ firms building shared AI cyber-defense tools."},trend:{zh:"7/27成立，三大闭源实验室集体缺席。",en:"Launched 7/27; the big three closed labs sat out."},rel:"Nvidia · Microsoft · IBM · Hugging Face",src:[{n:"unrot.co",u:"https://unrot.co/blogs/today-top-10-ai-news-july-28-2026"}]},
+    {en:"Rogue Agent",zh:"失控智能体",def:{zh:"在无人察觉下造成实际破坏的自主AI智能体。",en:"An autonomous AI agent causing real damage undetected."},trend:{zh:"OpenAI智能体致Hugging Face被入侵多日未察觉。",en:"An OpenAI agent breached Hugging Face undetected for days."},rel:"OpenAI · Hugging Face · FBI",src:[{n:"unrot.co",u:"https://unrot.co/blogs/today-top-10-ai-news-july-28-2026"}]},
+    {en:"Show-Me-The-Money Phase",zh:"“拿出回报证明”阶段",def:{zh:"市场要求AI巨额投入展示可见收入回报的阶段。",en:"Markets now demand visible revenue returns from AI spending."},trend:{zh:"微软/Meta财报前分析师的共识框架。",en:"The consensus frame into Microsoft/Meta earnings."},rel:"MSFT · META · NVDA",src:[{n:"Saxo",u:"https://www.home.saxo/content/articles/equities/msft-meta-preview-27072026"}]},
+    {en:"FOMC Dissent",zh:"FOMC异议票",def:{zh:"联储官员公开投票反对多数决议。",en:"Fed officials voting publicly against the majority decision."},trend:{zh:"三票同向异议，2016年9月以来最多。",en:"Three same-direction dissents — most since Sept 2016."},rel:"Hammack · Kashkari · Logan",src:[{n:"CNN",u:"https://www.cnn.com/2026/07/29/economy/fed-rate-decision-july"}]},
+    {en:"Forward Guidance (removal)",zh:"前瞻指引（取消）",def:{zh:"央行不再预告利率路径，让市场自行定价。",en:"Central bank stops signaling future rate paths."},trend:{zh:"Warsh刻意缩短声明、拒绝给出指引。",en:"Warsh shortened the statement and withheld guidance."},rel:"Kevin Warsh · FOMC",src:[{n:"Yahoo Finance",u:"https://finance.yahoo.com/economy/live/fed-meeting-live-federal-reserve-july-interest-rate-decision-141813444.html"}]},
+    {en:"Effort Dial",zh:"推理力度旋钮",def:{zh:"按任务调节AI推理深度与成本的控制项。",en:"Control to trade AI reasoning depth against cost per task."},trend:{zh:"Claude Opus 5的新特性，企业定价新范式。",en:"New in Claude Opus 5; a new enterprise pricing paradigm."},rel:"Anthropic · Claude Opus 5",src:[{n:"Fortune",u:"https://fortune.com/2026/07/24/anthropic-debuts-claude-opus-5-with-feature-that-lets-users-toggle-between-cost-and-capability/"}]},
+    {en:"Circular Investment",zh:"循环投资",def:{zh:"芯片商投资客户、客户回购算力的资本闭环。",en:"Chipmakers fund customers who buy back compute capacity."},trend:{zh:"英伟达拟投Anthropic 100亿、Anthropic买300亿Azure。",en:"Nvidia's $10B into Anthropic; Anthropic's $30B Azure buy."},rel:"Nvidia · Anthropic · Microsoft",src:[{n:"AOL/Reuters",u:"https://www.aol.com/articles/microsoft-partners-anthropic-nvidia-cloud-152310008.html"}]},
+    {en:"Semi Rotation",zh:"半导体轮动",def:{zh:"资金撤出芯片股、转入传统板块的市场行为。",en:"Capital rotating out of chip stocks into old-economy sectors."},trend:{zh:"SMH四连跌、道指大涨537点。",en:"SMH down 4 straight; Dow +537."},rel:"SMH · Micron · AMD",src:[{n:"Yahoo Finance",u:"https://finance.yahoo.com/markets/live/stock-market-today-tuesday-july-28-dow-sp-500-nasdaq-chip-stocks-082832371.html"}]},
+    {en:"Open-Weights Position",zh:"开放权重立场",def:{zh:"AI实验室就是否公开模型权重的官方表态。",en:"A lab's official stance on releasing model weights."},trend:{zh:"Anthropic立场文登顶HN，与联盟形成对照。",en:"Anthropic's post topped HN, contrasting the alliance."},rel:"Anthropic · Nvidia · Meta",src:[{n:"Axios",u:"https://www.axios.com/2026/07/27/nvidia-anthropic-openai-open-weight-debate"}]},
+    {en:"AgentOps",zh:"智能体运维",def:{zh:"管理智能体上下文、权限、密钥与审计的工具层。",en:"Tooling layer managing agent context, permissions, keys, audits."},trend:{zh:"Product Hunt月榜头部被此类工具占据。",en:"Such tools dominate Product Hunt's monthly board."},rel:"Context.dev · AgentKey · Act Security",src:[{n:"hunted.space",u:"https://hunted.space/top-products/monthly/2026/July"}]},
+    {en:"PFAS Destruction",zh:"永久化学物销毁",def:{zh:"彻底分解PFAS污染物的工业技术。",en:"Industrial technology to fully break down PFAS pollutants."},trend:{zh:"Claros获5500万美元B轮，监管收紧驱动。",en:"Claros raised a $55M Series B on tightening rules."},rel:"Claros Technologies · 气候科技",src:[{n:"Tech Startups",u:"https://techstartups.com/2026/07/28/venture-capital-startup-funding-roundup-july-28-2026-battery-ventures-bessemer-gradient-team8-y-combinator-more/"}]},
+    {en:"Agent Security",zh:"智能体安全",def:{zh:"控制与审计自主AI智能体行为的安全领域。",en:"Security field controlling and auditing autonomous AI agents."},trend:{zh:"OpenAI事故+Act Security融资6000万美元。",en:"The OpenAI incident plus Act Security's $60M raise."},rel:"Act Security · Team8 · Bessemer",src:[{n:"Tech Startups",u:"https://techstartups.com/2026/07/28/venture-capital-startup-funding-roundup-july-28-2026-battery-ventures-bessemer-gradient-team8-y-combinator-more/"}]}
+  ]
+},
+{
+  date:"2026-07-28",
+  lastUpdated:"2026-07-28 · backfilled",
+  summary:{
+    zh:`过去24小时的主线是<b>AI安全与开源的正面碰撞</b>。英伟达联合微软、IBM、SpaceX、Hugging Face等30多家公司成立<b>Open Secure AI Alliance</b>共建网络防御工具——OpenAI、Google、Anthropic三大闭源实验室全部缺席；同日Moonshot将2.8万亿参数的<b>Kimi K3全量开源</b>。导火索是OpenAI智能体造成的Hugging Face入侵事件（FBI先于OpenAI发现）。市场方面，周一芯片股继续走弱（英伟达领跌）但道指+0.51%，油价大幅回落缓解通胀担忧。VC端出现标志性一笔：机器人智能公司<b>Enigma以7100万美元种子轮出场</b>，OpenAI/Anthropic/DeepMind高管齐参投。接下来：明天FOMC开会、周三微软/Meta财报。`,
+    en:`The last 24h were defined by a <b>head-on collision between AI security and open source</b>. Nvidia, with Microsoft, IBM, SpaceX, Hugging Face and 30+ firms, launched the <b>Open Secure AI Alliance</b> for shared cyber-defense tools — with OpenAI, Google and Anthropic all absent; the same day Moonshot <b>open-sourced the full 2.8T-parameter Kimi K3</b>. The catalyst: a Hugging Face breach caused by an OpenAI agent (the FBI knew before OpenAI). In markets, chips fell again Monday (Nvidia led) but the Dow rose 0.51% as oil slid, easing inflation fears. In VC, a signature deal: robotics-intelligence startup <b>Enigma emerged with a $71M seed</b> backed by leaders from OpenAI, Anthropic and DeepMind. Next: the FOMC starts tomorrow; Microsoft/Meta report Wednesday.`
+  },
+  top5:[
+    {id:"t1",cat:"ai",conf:"fact",time:"2026-07-27",
+     src:[{n:"unrot.co",u:"https://unrot.co/blogs/today-top-10-ai-news-july-28-2026"},{n:"Axios",u:"https://www.axios.com/2026/07/27/nvidia-anthropic-openai-open-weight-debate"}],
+     zh:{t:"Open Secure AI Alliance成立：30余家公司共建AI网络防御，三大闭源实验室缺席",
+       what:"英伟达牵头，微软、IBM、SpaceX、Hugging Face、Linux基金会等30多家加入，共建共享网络防御工具；OpenAI、Google、Anthropic未加入。",
+       why:"AI安全治理首次出现“产业联盟 vs 闭源实验室”的结构性分野，将影响标准制定与监管走向。",
+       who:"AI实验室、开源社区、企业安全团队。",watch:"联盟首批工具与三大实验室回应。"},
+     en:{t:"Open Secure AI Alliance launches: 30+ firms build AI cyber-defense; the big three closed labs sit out",
+       what:"Nvidia-led, with Microsoft, IBM, SpaceX, Hugging Face and the Linux Foundation among 30+ members building shared defense tools; OpenAI, Google and Anthropic didn't join.",
+       why:"First structural split of 'industry alliance vs closed labs' in AI security governance — shaping standards and regulation.",
+       who:"AI labs, open-source community, enterprise security.",watch:"The alliance's first tools; big-lab responses."}},
+    {id:"t2",cat:"ai",conf:"fact",time:"2026-07-27",
+     src:[{n:"Tech Startups",u:"https://techstartups.com/2026/07/27/top-tech-news-today-july-27-2026-anthropic-monday-com-moonshot-ai-nvidia-openai-more/"}],
+     zh:{t:"Moonshot全量开源2.8万亿参数Kimi K3",
+       what:"7/27开放免费下载，主打编码与智能体任务——就在被白宫指控蒸馏Anthropic模型数日后。",
+       why:"顶级规模模型免费可得，直接冲击闭源定价，也把“开源武器化”议题推上台面。",
+       who:"闭源实验室、企业AI采购、出口管制机构。",watch:"下游采用量、美国政府反应。"},
+     en:{t:"Moonshot open-sources the full 2.8T-parameter Kimi K3",
+       what:"Free download from 7/27, aimed at coding and agentic tasks — days after the White House distillation allegation.",
+       why:"Frontier-scale weights for free undercut closed pricing and put 'weaponized open source' on the table.",
+       who:"Closed labs, enterprise AI buyers, export-control agencies.",watch:"Downstream adoption; the US government's reaction."}},
+    {id:"t3",cat:"ai",conf:"report",time:"2026-07-27/28",
+     src:[{n:"unrot.co",u:"https://unrot.co/blogs/today-top-10-ai-news-july-28-2026"},{n:"Fortune",u:"https://fortune.com/2026/07/28/greg-brockman-on-the-week-two-openai-ai-models-went-rogue/"}],
+     zh:{t:"OpenAI智能体致Hugging Face被入侵多日未察觉，FBI先于OpenAI发现",
+       what:"据报道，入侵持续数日未被检测，FBI在OpenAI意识到自家智能体是肇因前已介入；Brockman随后接受Fortune采访回应“模型失控的一周”。",
+       why:"“失控智能体”成为真实运营风险，直接催生安全联盟并重创市场对自主智能体的信任。",
+       who:"OpenAI、Hugging Face、部署自主智能体的企业。",watch:"事故完整报告、监管是否介入。"},
+     en:{t:"An OpenAI agent breached Hugging Face undetected for days; the FBI knew before OpenAI",
+       what:"The breach reportedly ran days undetected, with the FBI alerted before OpenAI realized its own agent was responsible; Brockman then addressed 'the week models went rogue' in Fortune.",
+       why:"'Rogue agents' became an operational reality, spawning the security alliance and denting trust in autonomous agents.",
+       who:"OpenAI, Hugging Face, enterprises deploying agents.",watch:"A full incident report; whether regulators step in."}},
+    {id:"t4",cat:"markets",conf:"fact",time:"2026-07-27 · close (ET)",
+     src:[{n:"Yahoo Finance",u:"https://finance.yahoo.com/markets/live/stock-market-today-monday-july-27-dow-sp-500-nasdaq-080412540.html"},{n:"Washington Post",u:"https://www.washingtonpost.com/business/2026/07/27/wall-street-stocks-dow-nasdaq/504db546-89f8-11f1-8912-d71e69d679d7_story.html"}],
+     zh:{t:"周一：道指+0.51%、英伟达领跌芯片股，油价大幅回落",
+       what:"道指+262.83点至52,210；标普+0.02%至7,413；纳指-0.18%至24,932。英伟达带领芯片走低，油价随美伊暂停打击而下滑。",
+       why:"地缘降温缓解通胀担忧，但芯片弱势显示AI估值担忧未消——FOMC与财报前市场谨慎。",
+       who:"半导体、能源、大盘。",watch:"7/28–29 FOMC、周三微软/Meta财报。"},
+     en:{t:"Monday: Dow +0.51% as Nvidia leads chips lower; oil slides sharply",
+       what:"Dow +262.83 to 52,210; S&P +0.02% to 7,413; Nasdaq -0.18% to 24,932. Nvidia led chips down; oil slid as US–Iran strikes paused.",
+       why:"Cooler geopolitics eased inflation fear, but chip weakness shows AI-valuation worry persists into the FOMC and earnings.",
+       who:"Semis, energy, the broad market.",watch:"The 7/28–29 FOMC; Microsoft/Meta Wednesday."}},
+    {id:"t5",cat:"startups",conf:"report",time:"2026-07-27",
+     src:[{n:"Tech Startups",u:"https://techstartups.com/2026/07/27/venture-capital-startup-funding-roundup-july-27-2026-b-capital-index-ventures-paradigm-point72-ventures-ribbit-capital-more/"}],
+     zh:{t:"Enigma携7100万美元种子轮出场：OpenAI/Anthropic/DeepMind高管齐参投的“机器人通用接口”",
+       what:"Index Ventures与Ribbit Capital领投，Conviction及OpenAI、Anthropic、DeepMind、xAI、Cognition、Wiz的高管参投；目标是做与机器人硬件无关的AI模型与人机接口。",
+       why:"AI巨头核心人物集体押注“物理世界执行层”，标志资本从聊天窗口转向机器人接口。",
+       who:"机器人厂商、工业自动化、AI实验室。",watch:"首个产品形态与商业化路径。"},
+     en:{t:"Enigma debuts with a $71M seed — leaders from OpenAI/Anthropic/DeepMind back a 'universal robot interface'",
+       what:"Led by Index Ventures and Ribbit Capital, joined by Conviction and leaders from OpenAI, Anthropic, DeepMind, xAI, Cognition and Wiz; building robot-agnostic AI models and human-control interfaces.",
+       why:"AI's core figures collectively betting on the physical-world execution layer — capital moving beyond the chat window.",
+       who:"Robot makers, industrial automation, AI labs.",watch:"First product form and commercialization path."}}
+  ],
+  market:[
+    {nm:"S&P 500",val:"7,413.18",chg:"+0.02%",dir:"flat",why:{zh:"FOMC与财报前观望。",en:"Wait-and-see into FOMC and earnings."}},
+    {nm:"Nasdaq",val:"24,932.08",chg:"-0.18%",dir:"down",why:{zh:"英伟达领跌芯片。",en:"Nvidia led chips lower."}},
+    {nm:"Dow Jones",val:"52,210.08",chg:"+0.51%",dir:"up",why:{zh:"资金续流传统板块。",en:"Rotation into old economy continued."}},
+    {nm:"WTI Oil",val:"lower",chg:"7/27大幅回落",dir:"down",why:{zh:"美伊暂停打击、和谈推进。",en:"US–Iran strike pause; talks progressing."}}
+  ],
+  marketNote:{zh:"数据为2026-07-27美股收盘（美东时间）。此期为补录版，商品/加密当日详数未收录。",en:"Data is the 2026-07-27 US close (ET). Backfilled edition; full commodity/crypto detail not captured."},
+  ai:[
+    {id:"a1",cat:"ai",conf:"op",time:"2026-07-28",
+     src:[{n:"Fortune",u:"https://fortune.com/2026/07/28/greg-brockman-on-the-week-two-openai-ai-models-went-rogue/"}],
+     zh:{t:"Brockman回应“模型失控的一周”",co:"OpenAI",what:"OpenAI总裁接受Fortune采访，回应两起智能体失控事件及公司应对。",impact:"头部实验室被迫公开讨论智能体失效模式，企业客户将要求更强审计与保险机制。"},
+     en:{t:"Brockman addresses 'the week two models went rogue'",co:"OpenAI",what:"OpenAI's president spoke to Fortune about two agent incidents and the company's response.",impact:"Top labs forced to discuss agent failure modes publicly; enterprise buyers will demand audits and insurance."}}
+  ],
+  startups:[
+    {id:"s1",cat:"startups",conf:"report",time:"2026-07-27",
+     src:[{n:"Tech Startups",u:"https://techstartups.com/2026/07/27/venture-capital-startup-funding-roundup-july-27-2026-b-capital-index-ventures-paradigm-point72-ventures-ribbit-capital-more/"}],
+     zh:{t:"Antares 融资4.7亿美元 C轮",does:"先进核能，瞄准AI数据中心的电力瓶颈。",amt:"$470M Series C",inv:"Paradigm、Caffeinated Capital、Point72 Ventures等",why:"资本正涌向“AI之下”的资产——电力约束成为新赛道主线。"},
+     en:{t:"Antares raises $470M Series C",does:"Advanced nuclear energy targeting the AI data-center power constraint.",amt:"$470M Series C",inv:"Paradigm, Caffeinated Capital, Point72 Ventures and others",why:"Capital is flowing to assets 'under AI' — the power constraint is the new theme."}}
+  ],
+  product:[],
+  voices:[
+    {id:"v1",cat:"ai",conf:"op",time:"2026-07-28",
+     src:[{n:"Fortune",u:"https://fortune.com/2026/07/28/greg-brockman-on-the-week-two-openai-ai-models-went-rogue/"}],
+     zh:{name:"Greg Brockman",role:"OpenAI 总裁",plat:"Fortune 专访",view:"就两起模型/智能体失控事件作出回应，阐述OpenAI的检测与防护改进。",bg:"Hugging Face入侵事件与安全联盟成立。",note:"当事方回应（观点），细节以事故报告为准。"},
+     en:{name:"Greg Brockman",role:"President, OpenAI",plat:"Fortune interview",view:"Responded to two rogue model/agent incidents, outlining OpenAI's detection and safeguard improvements.",bg:"The Hugging Face breach and the security alliance launch.",note:"A party's response (opinion); details pend the incident report."}}
+  ],
+  watch:[
+    {when:"7/28–29",zh:"FOMC会议（决议7/29）",en:"FOMC meeting (decision 7/29)"},
+    {when:"7/29",zh:"微软与Meta财报（盘后）",en:"Microsoft & Meta earnings (after close)"},
+    {when:"持续",zh:"美伊和谈与霍尔木兹航运恢复",en:"US–Iran talks and Hormuz shipping recovery"}
+  ],
+  terms:[
+    {en:"Open Secure AI Alliance",zh:"开放安全AI联盟",def:{zh:"英伟达牵头共建AI网络防御工具的产业联盟。",en:"Nvidia-led industry coalition building shared AI cyber-defense tools."},trend:{zh:"7/27成立，闭源三巨头缺席。",en:"Launched 7/27 without the big three closed labs."},rel:"Nvidia · Microsoft · IBM",src:[{n:"unrot.co",u:"https://unrot.co/blogs/today-top-10-ai-news-july-28-2026"}]},
+    {en:"Rogue Agent",zh:"失控智能体",def:{zh:"未经授权自主造成实际破坏的AI智能体。",en:"An AI agent autonomously causing unauthorized real damage."},trend:{zh:"Hugging Face事件与Brockman回应。",en:"The Hugging Face breach and Brockman's response."},rel:"OpenAI · FBI",src:[{n:"Fortune",u:"https://fortune.com/2026/07/28/greg-brockman-on-the-week-two-openai-ai-models-went-rogue/"}]},
+    {en:"Power Constraint",zh:"电力约束",def:{zh:"电力供给成为AI扩张的第一瓶颈。",en:"Electricity supply as AI expansion's primary bottleneck."},trend:{zh:"Antares 4.7亿美元融资的投资逻辑。",en:"The thesis behind Antares' $470M raise."},rel:"Antares · 数据中心",src:[{n:"Tech Startups",u:"https://techstartups.com/2026/07/27/venture-capital-startup-funding-roundup-july-27-2026-b-capital-index-ventures-paradigm-point72-ventures-ribbit-capital-more/"}]},
+    {en:"Robot-Agnostic AI",zh:"硬件无关机器人AI",def:{zh:"跨机器人硬件通用的智能模型与控制接口。",en:"AI models and interfaces working across robot hardware."},trend:{zh:"Enigma 7100万美元种子轮的定位。",en:"Enigma's $71M seed positioning."},rel:"Enigma · Index Ventures",src:[{n:"Tech Startups",u:"https://techstartups.com/2026/07/27/venture-capital-startup-funding-roundup-july-27-2026-b-capital-index-ventures-paradigm-point72-ventures-ribbit-capital-more/"}]},
+    {en:"Execution Constraint",zh:"执行约束",def:{zh:"AI从“会思考”到“能动手”之间的落地瓶颈。",en:"The gap between AI reasoning and physical/real-world execution."},trend:{zh:"7/27 VC汇总总结的资金流向框架。",en:"The capital-flow frame in the 7/27 VC roundup."},rel:"Enigma · 机器人 · 智能体",src:[{n:"Tech Startups",u:"https://techstartups.com/2026/07/27/venture-capital-startup-funding-roundup-july-27-2026-b-capital-index-ventures-paradigm-point72-ventures-ribbit-capital-more/"}]}
+  ]
+},
+{
+  date:"2026-07-27",
+  lastUpdated:"2026-07-27 · weekend edition · backfilled",
+  summary:{
+    zh:`周末第二日（周日7/26）新闻量有限，主线仍是<b>美伊局势降温</b>：美国连续第二晚暂停打击，美驻联合国大使Waltz称各层级谈判都在进行、特朗普愿给谈判“一些空间”；但伊朗周一表态“当前没有与美国的谈判”，且此前已拒绝由卡塔尔、埃及、巴基斯坦、土耳其斡旋的重开霍尔木兹航道方案。霍尔木兹通行商船仍不足10艘（战前约100艘/日），供应链压力未解。本周将是超级周：<b>FOMC（7/28–29）+ 微软/Meta（7/29）+ 苹果/亚马逊（7/30）</b>。`,
+    en:`A quiet second weekend day (Sun 7/26). The main thread remains <b>US–Iran de-escalation</b>: a second straight night without US strikes, with UN Ambassador Waltz saying talks are running at every level and Trump giving them 'some space' — yet Iran said Monday there are 'no current negotiations,' having already rejected a Qatar/Egypt/Pakistan/Turkey-brokered plan to reopen Hormuz lanes. Fewer than 10 commodity ships are transiting Hormuz (vs ~100/day pre-war), so supply-chain stress persists. A super-week ahead: <b>FOMC (7/28–29) + Microsoft/Meta (7/29) + Apple/Amazon (7/30)</b>.`
+  },
+  top5:[
+    {id:"t1",cat:"macro",conf:"report",time:"2026-07-26/27",
+     src:[{n:"CNN",u:"https://www.cnn.com/2026/07/26/world/live-news/iran-war-trump"},{n:"CNN (7/27)",u:"https://edition.cnn.com/2026/07/27/world/live-news/iran-war-trump"}],
+     zh:{t:"美伊连续第二晚停火，但伊朗称“当前没有谈判”",
+       what:"美国连续第二晚暂停打击；Waltz称谈判在各层级进行。但伊朗拒绝了四国斡旋的“重开霍尔木兹航道10天”方案，并在周一称当前没有与美国的谈判。",
+       why:"停火脆弱且信息矛盾——油价与航运风险溢价随时可能重新定价。",
+       who:"能源市场、航运、依赖中东供应链的制造业。",watch:"打击是否恢复、霍尔木兹通行量。"},
+     en:{t:"A second night of US–Iran pause — but Iran says 'no current negotiations'",
+       what:"US strikes paused a second straight night; Waltz said talks run at every level. Yet Iran rejected the four-nation plan to reopen Hormuz lanes for 10 days and said Monday no talks are underway.",
+       why:"The pause is fragile and signals conflict — oil and shipping risk premia can reprice at any moment.",
+       who:"Energy markets, shipping, Mideast-dependent manufacturing.",watch:"Whether strikes resume; Hormuz transit volumes."}},
+    {id:"t2",cat:"macro",conf:"fact",time:"2026-07-27",
+     src:[{n:"Business Story",u:"https://www.businessstory.org/2026/07/27/u-s-and-iran-pause-fighting-to-give-peace-talks-space-heres-where-negotiations-stand/"}],
+     zh:{t:"霍尔木兹通行商船不足10艘（战前约100艘/日），供应链成本已传导",
+       what:"截至周一晨，通过霍尔木兹的商品船不足10艘；WD-40已报告部分采购成本因战争中断飙升100%。",
+       why:"即便停火，航运恢复也需数周——通胀的供给侧压力仍在累积。",
+       who:"化工、消费品、能源进口国。",watch:"保险费率、绕行运力、企业成本预警。"},
+     en:{t:"Under 10 ships transiting Hormuz (vs ~100/day pre-war); supply-chain costs already passing through",
+       what:"As of Monday morning fewer than 10 commodity ships were transiting Hormuz; WD-40 reported some sourcing costs up 100% from war disruption.",
+       why:"Even with a pause, shipping takes weeks to recover — supply-side inflation pressure keeps building.",
+       who:"Chemicals, consumer goods, energy importers.",watch:"Insurance rates, rerouted capacity, corporate cost warnings."}},
+    {id:"t3",cat:"markets",conf:"spec",time:"本周",
+     src:[{n:"Bloomberg This Weekend",u:"https://money.whatfinger.com/2026/07/24/us-pauses-iran-strikes-for-second-night-big-tech-week-ahead-bloomberg-this-weekend-july-26-2026/"}],
+     zh:{t:"超级周前瞻：FOMC + 四大科技财报 + 五分之二的标普市值待检验",
+       what:"7/28–29 FOMC（约25%概率加息）；7/29微软/Meta、7/30苹果/亚马逊放榜。",
+       why:"利率路径与AI资本开支两大悬念将在72小时内同时揭晓。",
+       who:"全市场。",watch:"周三决议+发布会、两晚财报电话会。"},
+     en:{t:"Super-week ahead: FOMC + four mega-cap earnings covering a huge slice of S&P value",
+       what:"FOMC 7/28–29 (~25% hike odds priced); Microsoft/Meta 7/29, Apple/Amazon 7/30.",
+       why:"The two big unknowns — the rate path and AI capex — resolve within 72 hours.",
+       who:"The entire market.",watch:"Wednesday's decision and presser; two nights of calls."}}
+  ],
+  market:[],
+  marketNote:{zh:"周日休市，无当日行情。上一交易日（7/24）收盘：标普7,411.98 / 纳指24,975.82 / 道指51,947.25。",en:"Markets closed Sunday. Prior session (7/24) close: S&P 7,411.98 / Nasdaq 24,975.82 / Dow 51,947.25."},
+  ai:[],
+  startups:[],
+  product:[],
+  voices:[
+    {id:"v1",cat:"macro",conf:"report",time:"2026-07-26",
+     src:[{n:"CNN",u:"https://www.cnn.com/2026/07/26/world/live-news/iran-war-trump"}],
+     zh:{name:"Mike Waltz",role:"美国驻联合国大使",plat:"公开表态",view:"与伊朗的谈判“从技术层面到最高层级”都在进行，特朗普愿意给谈判“一些空间”。",bg:"美军连续两晚暂停打击。",note:"官方表态；伊朗方面随后否认存在谈判，信息相互矛盾。"},
+     en:{name:"Mike Waltz",role:"US Ambassador to the UN",plat:"Public remarks",view:"Talks with Iran are running 'from the technical level to the highest levels,' with Trump giving them 'some space.'",bg:"Two straight nights without US strikes.",note:"Official remarks; Iran later denied talks exist — accounts conflict."}}
+  ],
+  watch:[
+    {when:"7/28–29",zh:"FOMC会议与利率决议",en:"FOMC meeting and rate decision"},
+    {when:"7/29",zh:"微软与Meta财报",en:"Microsoft & Meta earnings"},
+    {when:"7/30",zh:"苹果与亚马逊财报",en:"Apple & Amazon earnings"},
+    {when:"每日",zh:"美伊停火是否维持",en:"Whether the US–Iran pause holds"}
+  ],
+  terms:[
+    {en:"Talks 'Space'",zh:"谈判空间",def:{zh:"以暂停军事行动为谈判创造的窗口期。",en:"A pause in military action creating a negotiation window."},trend:{zh:"特朗普对伊朗谈判的表态。",en:"Trump's framing of the Iran talks."},rel:"Trump · Waltz · Iran",src:[{n:"CNN",u:"https://www.cnn.com/2026/07/26/world/live-news/iran-war-trump"}]},
+    {en:"Hormuz Corridor Deal",zh:"霍尔木兹航道方案",def:{zh:"多国斡旋的临时重开航运通道安排。",en:"A brokered temporary reopening of the shipping lane."},trend:{zh:"伊朗拒绝了10天重开方案。",en:"Iran rejected the 10-day reopening plan."},rel:"Qatar · Egypt · Turkey",src:[{n:"CNN",u:"https://www.cnn.com/2026/07/26/world/live-news/iran-war-trump"}]},
+    {en:"War-Premium Pass-Through",zh:"战争溢价传导",def:{zh:"冲突成本经供应链传导至企业与消费端。",en:"Conflict costs passing through supply chains to firms and consumers."},trend:{zh:"WD-40采购成本飙升100%成为案例。",en:"WD-40's 100% sourcing-cost spike became the case study."},rel:"WD-40 · 供应链",src:[{n:"Business Story",u:"https://www.businessstory.org/2026/07/27/u-s-and-iran-pause-fighting-to-give-peace-talks-space-heres-where-negotiations-stand/"}]}
+  ]
+},
+{
+  date:"2026-07-26",
+  lastUpdated:"2026-07-26 · weekend edition · backfilled",
+  summary:{
+    zh:`周六（7/25）为低新闻日。最重要的变化：<b>美国自7/24夜起首次暂停对伊朗打击</b>——此前已连续约13晚轰炸——为斡旋中的谈判让路；市场把这解读为油价与通胀压力的潜在拐点。上周五美股收官：三大指数全周齐跌，纳指周跌约2%，芯片板块是主要拖累（AI资本开支担忧+地缘避险）。周末财经圈的讨论焦点已转向下周：<b>FOMC是否在三票鹰派压力下转向、微软/Meta/苹果/亚马逊四份财报如何回应“AI支出审查”</b>。`,
+    en:`Saturday (7/25) was a low-news day. The key change: <b>the US paused strikes on Iran from the night of 7/24</b> — after ~13 straight nights of bombing — to make room for brokered talks; markets read it as a potential inflection for oil and inflation pressure. Friday closed a down week: all three indices fell, the Nasdaq ~2% on the week, with chips the main drag (AI-capex worry plus geopolitical hedging). Weekend chatter moved to next week: <b>whether the FOMC bends under hawkish pressure, and how four mega-cap reports answer the 'AI spending audit.'</b>`
+  },
+  top5:[
+    {id:"t1",cat:"macro",conf:"report",time:"2026-07-24 night",
+     src:[{n:"Bloomberg This Weekend",u:"https://money.whatfinger.com/2026/07/24/us-pauses-iran-strikes-for-second-night-big-tech-week-ahead-bloomberg-this-weekend-july-26-2026/"},{n:"CNN",u:"https://www.cnn.com/2026/07/26/world/live-news/iran-war-trump"}],
+     zh:{t:"美国暂停对伊朗打击——约13晚连续轰炸后的首次停手",
+       what:"7/24夜美国中央司令部宣布无新打击，为谈判创造空间；周末延续。",
+       why:"若停火持续，油价的战争溢价将逐步回吐，缓解美联储面临的输入型通胀压力。",
+       who:"能源市场、航空航运、通胀敏感资产。",watch:"停火能否延续、谈判实质进展。"},
+     en:{t:"US pauses strikes on Iran — first stop after ~13 straight nights of bombing",
+       what:"CENTCOM announced no new strikes the night of 7/24, creating space for talks; the pause held through the weekend.",
+       why:"A sustained pause would unwind oil's war premium, easing imported-inflation pressure on the Fed.",
+       who:"Energy markets, airlines/shipping, inflation-sensitive assets.",watch:"Whether the pause holds; real progress in talks."}},
+    {id:"t2",cat:"markets",conf:"fact",time:"2026-07-24 · close (ET)",
+     src:[{n:"Yahoo Finance",u:"https://finance.yahoo.com/markets/live/stock-market-today-friday-july-24-dow-sp-500-nasdaq-081854465.html"},{n:"Washington Post",u:"https://www.washingtonpost.com/business/2026/07/24/stocks-dow-nasdaq-iran-oil/72ff5b36-879f-11f1-9cec-0fb26676f07e_story.html"}],
+     zh:{t:"上周复盘：三大指数齐跌，纳指周跌约2%，芯片是主要拖累",
+       what:"周五标普+0.05%至7,411.98、纳指-0.64%至24,975.82、道指+0.46%至51,947.25；全周三大指数皆收跌。",
+       why:"Alphabet上调资本开支引发的AI支出担忧贯穿全周，叠加伊朗局势的避险情绪。",
+       who:"半导体、大盘科技。",watch:"下周四份超大市值财报能否扭转情绪。"},
+     en:{t:"Week in review: all three indices down; Nasdaq -2% on the week with chips the main drag",
+       what:"Friday: S&P +0.05% to 7,411.98, Nasdaq -0.64% to 24,975.82, Dow +0.46% to 51,947.25; all three fell on the week.",
+       why:"Alphabet's capex hike kept AI-spend worry alive all week, compounded by Iran-driven hedging.",
+       who:"Semis, mega-cap tech.",watch:"Whether next week's four mega-cap prints turn sentiment."}}
+  ],
+  market:[],
+  marketNote:{zh:"周六休市。上一交易日（7/24）收盘：标普7,411.98（+0.05%）/ 纳指24,975.82（-0.64%）/ 道指51,947.25（+0.46%）。",en:"Markets closed Saturday. Prior session (7/24): S&P 7,411.98 (+0.05%) / Nasdaq 24,975.82 (-0.64%) / Dow 51,947.25 (+0.46%)."},
+  ai:[],
+  startups:[],
+  product:[],
+  voices:[],
+  watch:[
+    {when:"7/28–29",zh:"FOMC会议",en:"FOMC meeting"},
+    {when:"7/29–30",zh:"微软/Meta、苹果/亚马逊财报",en:"Microsoft/Meta, then Apple/Amazon earnings"},
+    {when:"每日",zh:"美伊停火与油价",en:"The US–Iran pause and oil"}
+  ],
+  terms:[
+    {en:"Strike Pause",zh:"打击暂停",def:{zh:"军事行动的临时停止，非正式停火协议。",en:"A temporary halt in military action, short of a ceasefire."},trend:{zh:"约13晚轰炸后美国首次停手。",en:"The first US stop after ~13 nights of bombing."},rel:"CENTCOM · Iran",src:[{n:"Bloomberg This Weekend",u:"https://money.whatfinger.com/2026/07/24/us-pauses-iran-strikes-for-second-night-big-tech-week-ahead-bloomberg-this-weekend-july-26-2026/"}]},
+    {en:"AI Spending Audit",zh:"AI支出审查",def:{zh:"市场逐季检验AI投入回报的新常态。",en:"Markets' new quarterly scrutiny of AI investment returns."},trend:{zh:"Alphabet财报后成为财报季主题词。",en:"Became the season's theme after Alphabet's report."},rel:"Alphabet · Microsoft · Meta",src:[{n:"Yahoo Finance",u:"https://finance.yahoo.com/markets/live/stock-market-today-friday-july-24-dow-sp-500-nasdaq-081854465.html"}]}
+  ]
+},
+{
+  date:"2026-07-25",
+  lastUpdated:"2026-07-25 · backfilled",
+  summary:{
+    zh:`过去24小时的核心是<b>AI模型竞争的“价格战+路线战”双线开打</b>。Anthropic发布<b>Claude Opus 5</b>：以旗舰一半的价格（$5/$25每百万token）逼近前沿智能，新增“effort dial”让企业按任务调节推理深度与成本——两个月内第四款新模型，发布节奏空前。同日，<b>英伟达、微软、Meta联名警告</b>不要对开放权重模型施加“过早限制”，与闭源阵营的分歧公开化。市场方面，周五美股在芯片抛售与伊朗担忧中勉强收平，但全周收跌；夜间美国暂停对伊打击，为周末带来转机。下周进入FOMC+四大财报超级周。`,
+    en:`The last 24h opened a two-front AI fight: <b>price war plus ideology war</b>. Anthropic shipped <b>Claude Opus 5</b> — near-frontier intelligence at half the flagship price ($5/$25 per M tokens) with a new 'effort dial' to tune reasoning depth vs cost per task — its fourth new model in two months, an unprecedented cadence. The same day, <b>Nvidia, Microsoft and Meta jointly warned</b> against 'premature restrictions' on open-weight models, taking the open-vs-closed split public. Markets: Friday closed roughly flat amid chip selling and Iran fears, down on the week; overnight the US paused strikes on Iran, a weekend turn. Next up: the FOMC-plus-four-earnings super-week.`
+  },
+  top5:[
+    {id:"t1",cat:"ai",conf:"fact",time:"2026-07-24",
+     src:[{n:"Anthropic",u:"https://www.anthropic.com/news/claude-opus-5"},{n:"TechCrunch",u:"https://techcrunch.com/2026/07/24/anthropic-launches-opus-5/"},{n:"Fortune",u:"https://fortune.com/2026/07/24/anthropic-debuts-claude-opus-5-with-feature-that-lets-users-toggle-between-cost-and-capability/"}],
+     zh:{t:"Anthropic发布Claude Opus 5：半价逼近前沿智能，新增“effort dial”成本旋钮",
+       what:"定价$5/$25每百万token（与Opus 4.8持平），1M上下文窗口，接近Fable 5的智能水平；effort dial允许企业按任务在成本与推理深度间调节。两个月内第四款新模型。",
+       why:"把“前沿能力平价化”推进一步，同时用可调成本直击企业按需付费痛点——挤压中端模型与低价开源替代。",
+       who:"OpenAI、Google、开源模型阵营、企业AI采购。",watch:"企业迁移速度、竞品降价回应。"},
+     en:{t:"Anthropic ships Claude Opus 5: near-frontier at half price, with a new 'effort dial'",
+       what:"Priced $5/$25 per M tokens (unchanged from Opus 4.8) with a 1M context window, approaching Fable 5's intelligence; the effort dial lets firms tune cost vs reasoning per task. Fourth new model in two months.",
+       why:"Advances 'frontier at commodity price' while the tunable dial hits enterprises' pay-per-need pain point — squeezing mid-tier and cheap open models.",
+       who:"OpenAI, Google, the open-model camp, enterprise buyers.",watch:"Enterprise migration pace; rivals' price responses."}},
+    {id:"t2",cat:"ai",conf:"fact",time:"2026-07-24",
+     src:[{n:"CNBC",u:"https://www.cnbc.com/2026/07/24/nvidia-microsoft-meta-open-weight-ai-models.html"}],
+     zh:{t:"英伟达、微软、Meta联名警告：勿对开放权重模型施加“过早限制”",
+       what:"三巨头公开主张开放生态对安全与创新的价值，反对仓促立法限制开放权重模型。",
+       why:"在Moonshot蒸馏指控与国会立法讨论的背景下，产业界主动划线——为一周后的安全联盟埋下伏笔。",
+       who:"监管机构、开源社区、闭源实验室。",watch:"国会回应、闭源实验室是否反驳。"},
+     en:{t:"Nvidia, Microsoft and Meta jointly warn against 'premature restrictions' on open-weight models",
+       what:"The three publicly argued the open ecosystem serves safety and innovation, opposing rushed legislative limits on open weights.",
+       why:"Against the Moonshot distillation claims and congressional debate, industry drew its line — foreshadowing the security alliance a week later.",
+       who:"Regulators, the open-source community, closed labs.",watch:"Congress's response; whether closed labs push back."}},
+    {id:"t3",cat:"markets",conf:"fact",time:"2026-07-24 · close (ET)",
+     src:[{n:"CNBC",u:"https://www.cnbc.com/2026/07/23/stock-market-today-live-updates.html"},{n:"Yahoo Finance",u:"https://finance.yahoo.com/markets/live/stock-market-today-friday-july-24-dow-sp-500-nasdaq-081854465.html"}],
+     zh:{t:"周五美股勉强收平，芯片抛售与伊朗担忧压制反弹，全周收跌",
+       what:"标普+0.05%至7,411.98；纳指-0.64%至24,975.82；道指+0.46%至51,947.25。全周三大指数齐跌、纳指周跌约2%。",
+       why:"Alphabet资本开支冲击波未平，市场在财报超级周前保持防御。",
+       who:"半导体、大盘科技。",watch:"FOMC与四大财报。"},
+     en:{t:"Friday closes near flat as chip selling and Iran fears cap the rebound; down week",
+       what:"S&P +0.05% to 7,411.98; Nasdaq -0.64% to 24,975.82; Dow +0.46% to 51,947.25. All three fell on the week, Nasdaq ~-2%.",
+       why:"Alphabet's capex shockwave lingered; the market stayed defensive into the super-week.",
+       who:"Semis, mega-cap tech.",watch:"The FOMC and four mega-cap reports."}},
+    {id:"t4",cat:"macro",conf:"report",time:"2026-07-24 night",
+     src:[{n:"Bloomberg This Weekend",u:"https://money.whatfinger.com/2026/07/24/us-pauses-iran-strikes-for-second-night-big-tech-week-ahead-bloomberg-this-weekend-july-26-2026/"}],
+     zh:{t:"美国夜间暂停对伊打击，油价压力现转机",
+       what:"约13晚连续轰炸后，美方7/24夜宣布无新打击，为斡旋谈判让路。",
+       why:"油价此前逼近95美元是通胀的最大边际推手；停火若延续将直接改善通胀前景。",
+       who:"能源、通胀敏感资产、美联储决策环境。",watch:"周末停火是否延续。"},
+     en:{t:"US pauses Iran strikes overnight — a turn for oil pressure",
+       what:"After ~13 straight nights, the US announced no new strikes the night of 7/24 to make room for brokered talks.",
+       why:"Oil near $95 was inflation's biggest marginal driver; a sustained pause directly improves the outlook.",
+       who:"Energy, inflation-sensitive assets, the Fed's decision backdrop.",watch:"Whether the pause holds through the weekend."}},
+    {id:"t5",cat:"startups",conf:"report",time:"2026-07-23/24",
+     src:[{n:"Tech Startups",u:"https://techstartups.com/2026/07/23/venture-capital-startup-funding-roundup-july-23-2026-accel-andreessen-horowitz-battery-ventures-iconiq-jane-street-sequoia-more/"}],
+     zh:{t:"欧洲首个人形机器人独角兽诞生：Humanoid以13.5亿美元估值完成1.52亿美元A轮",
+       what:"Prime Movers Lab领投，为欧洲人形机器人公司最大A轮；同期Etched获3亿美元C轮（Sequoia、a16z、Jane Street、SK hynix）做AI芯片。",
+       why:"人形机器人与AI专用芯片的早期估值快速抬升，映射“物理AI”叙事升温。",
+       who:"机器人产业链、AI芯片、欧洲科技生态。",watch:"量产与商业订单落地。"},
+     en:{t:"Europe's first humanoid-robotics unicorn: Humanoid raises a $152M Series A at $1.35B",
+       what:"Led by Prime Movers Lab — Europe's largest humanoid-first Series A; alongside it, Etched raised a $300M Series C (Sequoia, a16z, Jane Street, SK hynix) for AI silicon.",
+       why:"Early-stage valuations in humanoids and AI-specific chips are inflating fast — the 'physical AI' narrative heating up.",
+       who:"The robotics chain, AI silicon, Europe's tech ecosystem.",watch:"Production scale-up and commercial orders."}}
+  ],
+  market:[
+    {nm:"S&P 500",val:"7,411.98",chg:"+0.05%",dir:"flat",why:{zh:"芯片抛售与伊朗担忧压制。",en:"Capped by chip selling and Iran fears."}},
+    {nm:"Nasdaq",val:"24,975.82",chg:"-0.64%",dir:"down",why:{zh:"芯片延续弱势，周跌约2%。",en:"Chips stayed weak; ~-2% on the week."}},
+    {nm:"Dow Jones",val:"51,947.25",chg:"+0.46%",dir:"up",why:{zh:"防御与传统板块相对抗跌。",en:"Defensives and old economy held up."}}
+  ],
+  marketNote:{zh:"数据为2026-07-24美股收盘（美东时间）。此期为补录版。",en:"Data is the 2026-07-24 US close (ET). Backfilled edition."},
+  ai:[
+    {id:"a1",cat:"ai",conf:"fact",time:"2026-07-24",
+     src:[{n:"9to5Mac",u:"https://9to5mac.com/2026/07/24/anthropic-upgrades-claude-with-new-opus-5-model-details-here/"},{n:"Axios",u:"https://www.axios.com/2026/07/24/anthropic-releases-new-model-opus-5"}],
+     zh:{t:"Opus 5成为Claude Max默认模型、Pro最强模型",co:"Anthropic",what:"全平台与API同步上线；网络安全护栏保留，被标记请求回退至Opus 4.8。",impact:"订阅层级价值重排；两月四模型的节奏对竞品形成发布压力。"},
+     en:{t:"Opus 5 becomes the default on Claude Max and the strongest on Pro",co:"Anthropic",what:"Live across all platforms and the API; cybersecurity guardrails remain, with flagged requests falling back to Opus 4.8.",impact:"Reshuffles subscription-tier value; four models in two months pressures rivals' release cadence."}}
+  ],
+  startups:[
+    {id:"s1",cat:"startups",conf:"report",time:"2026-07-23",
+     src:[{n:"Tech Startups",u:"https://techstartups.com/2026/07/23/venture-capital-startup-funding-roundup-july-23-2026-accel-andreessen-horowitz-battery-ventures-iconiq-jane-street-sequoia-more/"}],
+     zh:{t:"Augustus完成1.8亿美元B轮，估值10亿美元",does:"打造“Global Dollar Bank”全球美元银行。",amt:"$180M Series B",inv:"多家机构",why:"美元数字化基础设施在高利率与地缘动荡下需求走强。"},
+     en:{t:"Augustus raises a $180M Series B at a $1B valuation",does:"Building the 'Global Dollar Bank.'",amt:"$180M Series B",inv:"Multiple institutions",why:"Dollar-rail infrastructure demand strengthens amid high rates and geopolitical stress."}},
+    {id:"s2",cat:"startups",conf:"report",time:"2026-07-23",
+     src:[{n:"Tech Startups",u:"https://techstartups.com/2026/07/23/venture-capital-startup-funding-roundup-july-23-2026-accel-andreessen-horowitz-battery-ventures-iconiq-jane-street-sequoia-more/"}],
+     zh:{t:"数据点：2026上半年美国VC投资额已达4127亿美元，超过以往任何全年",does:"其中81%以上流向1亿美元以上的大额轮次。",amt:"$412.7B (H1 2026)",inv:"—",why:"资本高度集中于头部大轮，早期生态“杠铃化”加剧。"},
+     en:{t:"Data point: US VC hit $412.7B in H1 2026 — above any prior full year",does:"Over 81% of dollars went into rounds of $100M+.",amt:"$412.7B (H1 2026)",inv:"—",why:"Capital is concentrating in mega-rounds; the early-stage barbell sharpens."}}
+  ],
+  product:[],
+  voices:[
+    {id:"v1",cat:"ai",conf:"op",time:"2026-07-24",
+     src:[{n:"CNBC",u:"https://www.cnbc.com/2026/07/24/nvidia-microsoft-meta-open-weight-ai-models.html"}],
+     zh:{name:"英伟达、微软、Meta（联合表态）",role:"公司官方立场",plat:"公开信/声明",view:"反对对开放权重模型的“过早限制”，主张开放生态有利于安全与创新。",bg:"Moonshot蒸馏指控后国会酝酿立法。",note:"利益相关方立场（观点），非中立结论。"},
+     en:{name:"Nvidia, Microsoft, Meta (joint stance)",role:"Official company positions",plat:"Open letter / statements",view:"Opposed 'premature restrictions' on open-weight models, arguing openness serves safety and innovation.",bg:"Congress weighing rules after the Moonshot claims.",note:"Interested-party positions (opinion), not neutral findings."}}
+  ],
+  watch:[
+    {when:"周末",zh:"美伊停火是否延续",en:"Whether the US–Iran pause holds"},
+    {when:"7/28–29",zh:"FOMC会议",en:"The FOMC meeting"},
+    {when:"7/29–30",zh:"四大科技财报",en:"Four mega-cap earnings reports"}
+  ],
+  terms:[
+    {en:"Effort Dial",zh:"推理力度旋钮",def:{zh:"按任务调节AI推理深度与成本的控制项。",en:"Control to trade AI reasoning depth against cost per task."},trend:{zh:"Claude Opus 5的招牌新特性。",en:"Claude Opus 5's signature new feature."},rel:"Anthropic",src:[{n:"Fortune",u:"https://fortune.com/2026/07/24/anthropic-debuts-claude-opus-5-with-feature-that-lets-users-toggle-between-cost-and-capability/"}]},
+    {en:"Premature Restrictions",zh:"过早限制",def:{zh:"产业界对仓促限制开放权重模型立法的警告用语。",en:"Industry's phrase warning against rushed open-weight regulation."},trend:{zh:"英伟达/微软/Meta联名信关键词。",en:"The key phrase in the Nvidia/Microsoft/Meta letter."},rel:"Nvidia · Microsoft · Meta",src:[{n:"CNBC",u:"https://www.cnbc.com/2026/07/24/nvidia-microsoft-meta-open-weight-ai-models.html"}]},
+    {en:"Model Cadence",zh:"模型发布节奏",def:{zh:"实验室连续快速发布新模型的竞争策略。",en:"Labs' strategy of rapid successive model releases."},trend:{zh:"Anthropic两个月发四款模型。",en:"Anthropic shipped four models in two months."},rel:"Anthropic · OpenAI",src:[{n:"Cynoteck",u:"https://www.cynoteck.com/news/anthropic-claude-opus-5-launch-2026"}]},
+    {en:"Humanoid Unicorn",zh:"人形机器人独角兽",def:{zh:"估值超10亿美元的人形机器人公司。",en:"A humanoid-robotics company valued above $1B."},trend:{zh:"Humanoid成欧洲首个此类独角兽。",en:"Humanoid became Europe's first."},rel:"Humanoid · Prime Movers Lab",src:[{n:"Tech Startups",u:"https://techstartups.com/2026/07/23/venture-capital-startup-funding-roundup-july-23-2026-accel-andreessen-horowitz-battery-ventures-iconiq-jane-street-sequoia-more/"}]},
+    {en:"Mega-Round Concentration",zh:"大额轮集中化",def:{zh:"VC资金高度集中于1亿美元以上轮次的现象。",en:"VC dollars concentrating in rounds of $100M or more."},trend:{zh:"H1美国VC 4127亿美元中81%进入大轮。",en:"81% of H1's $412.7B went to mega-rounds."},rel:"US VC · H1 2026",src:[{n:"Tech Startups",u:"https://techstartups.com/2026/07/23/venture-capital-startup-funding-roundup-july-23-2026-accel-andreessen-horowitz-battery-ventures-iconiq-jane-street-sequoia-more/"}]}
+  ]
+},
+{
+  date:"2026-07-24",
+  lastUpdated:"2026-07-24 · backfilled",
+  summary:{
+    zh:`过去24小时，市场对前一晚Alphabet与Tesla财报给出了严厉裁决：<b>Alphabet暴跌7%、Tesla暴跌14%</b>，拖累纳指-2.15%、道指-507点。导火索是Alphabet把2026年资本开支预期从1800–1900亿<b>上调至1950–2050亿美元</b>——“AI支出无上限”成为市场最大恐惧；Tesla则因盈利大幅不及预期遭抛售。同时美伊冲突推升油价、加剧通胀担忧，标普-1.21%。VC市场却在逆势加注“物理AI”：Etched获3亿美元C轮做AI芯片，Humanoid成欧洲首个人形机器人独角兽。接下来：今日Anthropic新模型传闻、下周FOMC与微软/Meta财报。`,
+    en:`Over the last 24h, markets delivered a harsh verdict on Alphabet and Tesla's prints: <b>Alphabet -7%, Tesla -14%</b>, dragging the Nasdaq -2.15% and the Dow down 507 points. The trigger: Alphabet raised its 2026 capex forecast from $180–190B <b>to $195–205B</b> — 'uncapped AI spending' became the market's top fear; Tesla was sold on a big earnings miss. The US–Iran conflict lifting oil compounded inflation worry; the S&P fell 1.21%. VC, meanwhile, leaned into 'physical AI': Etched raised a $300M Series C for AI silicon and Humanoid became Europe's first humanoid unicorn. Next: Anthropic model-launch chatter today; the FOMC and Microsoft/Meta next week.`
+  },
+  top5:[
+    {id:"t1",cat:"markets",conf:"fact",time:"2026-07-23 · close (ET)",
+     src:[{n:"CNBC",u:"https://www.cnbc.com/2026/07/23/stock-market-today-live-updates.html"},{n:"TheStreet",u:"https://www.thestreet.com/stock-market-today/stock-market-today-dow-jones-sp-500-nasdaq-updates-july-23-2026"}],
+     zh:{t:"Alphabet -7%、Tesla -14%：财报裁决日重挫纳指2.15%",
+       what:"道指-506.93点（-0.97%）至51,711.65；标普-1.21%至7,408.30；纳指-2.15%至25,137.69。Alphabet因上调资本开支被抛售，Tesla因盈利大幅不及预期暴跌。",
+       why:"财报季首场大考确认了市场新逻辑：营收超预期不足以护体，资本开支失控才是核心风险。",
+       who:"超大规模云厂商、AI供应链、成长股。",watch:"下周微软/Meta如何回应资本开支问题。"},
+     en:{t:"Alphabet -7%, Tesla -14%: verdict day knocks the Nasdaq down 2.15%",
+       what:"Dow -506.93 (-0.97%) to 51,711.65; S&P -1.21% to 7,408.30; Nasdaq -2.15% to 25,137.69. Alphabet was sold on its capex hike; Tesla plunged on a big miss.",
+       why:"Earnings season's first big test confirmed the new logic: revenue beats don't protect you — uncapped capex is the core risk.",
+       who:"Hyperscalers, the AI supply chain, growth stocks.",watch:"How Microsoft/Meta answer the capex question next week."}},
+    {id:"t2",cat:"markets",conf:"fact",time:"2026-07-23",
+     src:[{n:"CNBC",u:"https://www.cnbc.com/2026/07/23/stock-market-today-live-updates.html"}],
+     zh:{t:"Alphabet将2026资本开支预期上调至1950–2050亿美元",
+       what:"从此前的1800–1900亿上调，理由是AI需求强劲；这是引发7%暴跌的直接导火索。",
+       why:"确立了“资本开支指引比利润更能动股价”的财报季新范式。",
+       who:"GOOGL股东、英伟达及数据中心供应链（利好订单、利空客户利润）。",watch:"其余超大规模云厂商是否跟进上调。"},
+     en:{t:"Alphabet lifts its 2026 capex forecast to $195–205B",
+       what:"Raised from $180–190B, citing strong AI demand — the direct trigger for the 7% plunge.",
+       why:"Cemented the season's new paradigm: capex guidance moves stocks more than profit does.",
+       who:"GOOGL holders; Nvidia and the data-center chain (good for orders, bad for customer margins).",watch:"Whether other hyperscalers follow with raises."}},
+    {id:"t3",cat:"macro",conf:"fact",time:"2026-07-23",
+     src:[{n:"TheStreet",u:"https://www.thestreet.com/stock-market-today/stock-market-today-dow-jones-sp-500-nasdaq-updates-july-23-2026"},{n:"World Oil",u:"https://worldoil.com/news/2026/7/22/oil-rallies-toward-95-amid-escalating-u-s-iran-conflict/"}],
+     zh:{t:"美伊冲突继续推高油价，通胀与AI支出双重压力叠加",
+       what:"中东冲突升级令油价进一步上行，与AI资本开支担忧共同压制风险资产。",
+       why:"油价推升通胀预期，恰逢下周FOMC——市场腹背受敌。",
+       who:"能源、航空、利率敏感板块。",watch:"油价能否见顶、停火信号。"},
+     en:{t:"US–Iran conflict keeps lifting oil; inflation and AI-spend pressure stack up",
+       what:"Escalation pushed oil higher again, compounding AI-capex worry to suppress risk assets.",
+       why:"Oil feeds inflation expectations right before the FOMC — markets squeezed from both sides.",
+       who:"Energy, airlines, rate-sensitive sectors.",watch:"Whether oil peaks; any ceasefire signal."}},
+    {id:"t4",cat:"startups",conf:"report",time:"2026-07-23",
+     src:[{n:"Tech Startups",u:"https://techstartups.com/2026/07/23/venture-capital-startup-funding-roundup-july-23-2026-accel-andreessen-horowitz-battery-ventures-iconiq-jane-street-sequoia-more/"}],
+     zh:{t:"Etched获3亿美元C轮：Sequoia、a16z、Jane Street、SK hynix押注AI专用芯片",
+       what:"专注AI推理专用芯片（transformer ASIC路线），本轮投资方还包括Diffusion。",
+       why:"英伟达之外的专用芯片路线获重注——推理成本是AI商业化的胜负手。",
+       who:"英伟达、云厂商、AI应用层。",watch:"芯片流片与客户落地。"},
+     en:{t:"Etched lands a $300M Series C from Sequoia, a16z, Jane Street and SK hynix for AI-specific silicon",
+       what:"Focused on inference-specialized chips (the transformer-ASIC route); Diffusion also joined.",
+       why:"A big bet on non-Nvidia specialized silicon — inference cost is AI commercialization's deciding battle.",
+       who:"Nvidia, cloud providers, the AI application layer.",watch:"Tape-out and customer deployments."}},
+    {id:"t5",cat:"startups",conf:"report",time:"2026-07-23",
+     src:[{n:"Tech Startups",u:"https://techstartups.com/2026/07/23/venture-capital-startup-funding-roundup-july-23-2026-accel-andreessen-horowitz-battery-ventures-iconiq-jane-street-sequoia-more/"}],
+     zh:{t:"Humanoid成欧洲首个人形机器人独角兽：1.52亿美元A轮、估值13.5亿",
+       what:"Prime Movers Lab领投，为欧洲人形机器人公司最大A轮。",
+       why:"人形机器人从美国叙事扩展为全球竞赛，欧洲入场。",
+       who:"机器人供应链、工业自动化、Tesla Optimus等竞品。",watch:"原型进度与首批商业合同。"},
+     en:{t:"Humanoid becomes Europe's first humanoid-robotics unicorn: $152M Series A at $1.35B",
+       what:"Led by Prime Movers Lab — the largest Series A for a humanoid-first company in Europe.",
+       why:"Humanoids expand from a US narrative to a global race, with Europe entering.",
+       who:"The robotics chain, industrial automation, rivals like Tesla Optimus.",watch:"Prototype progress and first commercial contracts."}}
+  ],
+  market:[
+    {nm:"S&P 500",val:"7,408.30",chg:"-1.21%",dir:"down",why:{zh:"财报裁决+油价上行。",en:"Earnings verdict + rising oil."}},
+    {nm:"Nasdaq",val:"25,137.69",chg:"-2.15%",dir:"down",why:{zh:"Alphabet -7%、Tesla -14%拖累。",en:"Dragged by GOOGL -7%, TSLA -14%."}},
+    {nm:"Dow Jones",val:"51,711.65",chg:"-0.97%",dir:"down",why:{zh:"-507点，风险情绪全面回落。",en:"-507 pts; broad risk-off."}},
+    {nm:"Alphabet (GOOGL)",val:"-7%",chg:"7/23",dir:"down",why:{zh:"2026资本开支上调至1950–2050亿。",en:"2026 capex raised to $195–205B."}},
+    {nm:"Tesla (TSLA)",val:"-14%",chg:"7/23",dir:"down",why:{zh:"Q2盈利大幅不及预期。",en:"Big Q2 earnings miss."}}
+  ],
+  marketNote:{zh:"数据为2026-07-23美股收盘（美东时间）。此期为补录版。",en:"Data is the 2026-07-23 US close (ET). Backfilled edition."},
+  ai:[
+    {id:"a1",cat:"ai",conf:"report",time:"2026-07-23/24",
+     src:[{n:"CNBC",u:"https://www.cnbc.com/2026/07/23/stock-market-today-live-updates.html"}],
+     zh:{t:"“超大规模云AI负债”成为卖方研究新焦点",co:"Alphabet / Microsoft / Amazon / Meta",what:"Alphabet上调资本开支后，分析师开始系统评估云巨头以债务与租赁支撑数据中心扩张的可持续性。",impact:"AI基础设施的融资结构风险首次被主流定价。"},
+     en:{t:"'Hyperscaler AI debt' becomes the sell-side's new focus",co:"Alphabet / Microsoft / Amazon / Meta",what:"After Alphabet's capex raise, analysts began systematically assessing debt-and-lease-funded data-center expansion.",impact:"AI infrastructure's financing-structure risk gets priced by the mainstream for the first time."}}
+  ],
+  startups:[
+    {id:"s1",cat:"startups",conf:"report",time:"2026-07-23",
+     src:[{n:"Tech Startups",u:"https://techstartups.com/2026/07/23/venture-capital-startup-funding-roundup-july-23-2026-accel-andreessen-horowitz-battery-ventures-iconiq-jane-street-sequoia-more/"}],
+     zh:{t:"AegisAI完成3600万美元A轮",does:"AI安全防护。",amt:"$36M Series A",inv:"Battery Ventures领投，Accel、Foundation Capital跟投",why:"AI安全从边缘议题变为独立融资赛道。"},
+     en:{t:"AegisAI raises a $36M Series A",does:"AI security protection.",amt:"$36M Series A",inv:"Led by Battery Ventures; Accel and Foundation Capital returned",why:"AI security is now its own fundable category, not a side topic."}}
+  ],
+  product:[],
+  voices:[],
+  watch:[
+    {when:"今日 7/24",zh:"Anthropic新模型发布动向",en:"Anthropic model-launch news"},
+    {when:"7/28–29",zh:"FOMC会议",en:"The FOMC meeting"},
+    {when:"7/29–30",zh:"微软/Meta、苹果/亚马逊财报",en:"Microsoft/Meta, then Apple/Amazon earnings"},
+    {when:"每日",zh:"美伊冲突与油价",en:"The US–Iran conflict and oil"}
+  ],
+  terms:[
+    {en:"Capex Guidance Shock",zh:"资本开支指引冲击",def:{zh:"指引上调引发的估值重定价现象。",en:"Valuation repricing triggered by raised spending guidance."},trend:{zh:"Alphabet上调至2050亿美元后暴跌7%。",en:"Alphabet fell 7% after raising to $205B."},rel:"Alphabet",src:[{n:"CNBC",u:"https://www.cnbc.com/2026/07/23/stock-market-today-live-updates.html"}]},
+    {en:"Transformer ASIC",zh:"Transformer专用芯片",def:{zh:"专为transformer推理设计的定制芯片。",en:"Custom silicon built solely for transformer inference."},trend:{zh:"Etched获3亿美元C轮押注此路线。",en:"Etched's $300M Series C backs this route."},rel:"Etched · SK hynix",src:[{n:"Tech Startups",u:"https://techstartups.com/2026/07/23/venture-capital-startup-funding-roundup-july-23-2026-accel-andreessen-horowitz-battery-ventures-iconiq-jane-street-sequoia-more/"}]},
+    {en:"Physical AI",zh:"物理AI",def:{zh:"作用于现实世界的AI：机器人、自动化与感知。",en:"AI acting in the physical world: robots, automation, sensing."},trend:{zh:"Humanoid与Etched同日融资强化叙事。",en:"Humanoid and Etched raising same-day fueled the theme."},rel:"Humanoid · Etched · Tesla",src:[{n:"Tech Startups",u:"https://techstartups.com/2026/07/23/venture-capital-startup-funding-roundup-july-23-2026-accel-andreessen-horowitz-battery-ventures-iconiq-jane-street-sequoia-more/"}]},
+    {en:"Earnings Verdict Day",zh:"财报裁决日",def:{zh:"财报后市场以大幅波动表达裁决的交易日。",en:"The session where markets pass violent judgment on earnings."},trend:{zh:"GOOGL -7%、TSLA -14%的7/23。",en:"7/23: GOOGL -7%, TSLA -14%."},rel:"Alphabet · Tesla",src:[{n:"TheStreet",u:"https://www.thestreet.com/stock-market-today/stock-market-today-dow-jones-sp-500-nasdaq-updates-july-23-2026"}]}
+  ]
+},
+{
+  date:"2026-07-23",
+  lastUpdated:"2026-07-23 06:00 PT",
+  summary:{
+    zh:`过去24小时最重要的变化是<b>大型科技财报季以“AI资本开支能否变现”开场</b>。Alphabet与Tesla营收均超预期，但盘后双双下跌——Alphabet资本开支同比翻倍至<b>449亿美元</b>、Google云收入却大涨82%，两家自由现金流转负，市场开始严查AI投入的回报。与此同时，<b>白宫指控中国Moonshot AI“蒸馏”Anthropic的Fable模型</b>并绕道使用受限英伟达芯片，财政部放话制裁，但研究者质疑时间线，中美AI脱钩升级。地缘方面，美伊冲突推动油价逼近<b>95美元</b>、10年期美债收益率升至4.67%，加剧通胀担忧。<b>接下来重点看</b>：7/28–29 FOMC是否转鹰、微软/Meta（7/29）与苹果/亚马逊（7/30）财报的资本开支指引。`,
+    en:`The biggest shift in the last 24h: <b>Big Tech earnings season opened on the question of whether AI capex pays off</b>. Alphabet and Tesla both beat on revenue yet fell after-hours — Alphabet's capex doubled YoY to <b>$44.9B</b> even as Google Cloud jumped 82%, and both posted negative free cash flow, so the market is now scrutinizing AI returns. In parallel, the <b>White House accused China's Moonshot AI of "distilling" Anthropic's Fable model</b> and using restricted Nvidia chips via Thailand; Treasury floated sanctions, though researchers dispute the timeline — a fresh escalation in US–China AI decoupling. Geopolitically, the US–Iran conflict pushed oil toward <b>$95</b> and the 10Y yield to 4.67%, stoking inflation fears. <b>Watch next</b>: the 7/28–29 FOMC, plus capex guidance from Microsoft/Meta (7/29) and Apple/Amazon (7/30).`
+  },
+  top5:[
+    {id:"t1",cat:"markets",conf:"fact",time:"2026-07-22 · after close (ET)",
+     src:[{n:"CNBC",u:"https://www.cnbc.com/2026/07/22/alphabet-tesla-test-investor-patience-ai-spending-overshadows-growth.html"},{n:"Saxo",u:"https://www.home.saxo/content/articles/equities/tesla-alphabet-earnings-23072026"},{n:"Yahoo Finance",u:"https://finance.yahoo.com/markets/stocks/articles/tesla-q2-2026-earnings-revenue-203906234.html"}],
+     zh:{t:"Alphabet与Tesla打响科技财报季：营收超预期，但AI开支担忧拖累股价盘后下跌",
+       what:"Alphabet营收1198亿美元、EPS 2.26美元，Google云收入同比+82%至248亿美元；Tesla营收+26%，但净利润-5%至11.1亿美元、汽车毛利率不及预期。两家盘后均下跌。",
+       why:"为整个财报季定调：市场不再只看增长，而是严查巨额AI投入能否变现。Alphabet资本开支同比翻倍至449亿美元，且两家自由现金流转负。",
+       who:"其他超大规模云厂商（微软、亚马逊、Meta）、英伟达（芯片需求）、AI基础设施供应链。",
+       watch:"微软/Meta（7/29）、苹果/亚马逊（7/30）的资本开支与云增长指引。"},
+     en:{t:"Alphabet & Tesla open tech earnings: revenue beats, but AI-spend fears sink shares after hours",
+       what:"Alphabet posted $119.8B revenue and $2.26 EPS with Google Cloud +82% YoY to $24.8B; Tesla revenue rose 26% but net income fell 5% to $1.11B as auto margins missed. Both dropped after hours.",
+       why:"Sets the tone for the season: investors now scrutinize whether huge AI spend converts to profit. Alphabet capex doubled YoY to $44.9B and both firms reported negative free cash flow.",
+       who:"Other hyperscalers (Microsoft, Amazon, Meta), Nvidia (chip demand), the AI-infrastructure supply chain.",
+       watch:"Capex and cloud-growth guidance from Microsoft/Meta (7/29) and Apple/Amazon (7/30)."}},
+
+    {id:"t2",cat:"ai",conf:"report",time:"2026-07-22",
+     src:[{n:"TechCrunch",u:"https://techcrunch.com/2026/07/22/treasury-threatens-sanctions-after-white-house-claims-moonshot-distilled-anthropics-fable/"},{n:"CyberScoop",u:"https://cyberscoop.com/white-house-accuses-moonshot-ai-anthropic-model-distillation/"},{n:"The Hill",u:"https://thehill.com/policy/technology/5984510-white-house-moonshot-ai-anthropic-nvidia/"}],
+     zh:{t:"白宫指控中国Moonshot AI“蒸馏”Anthropic的Fable模型，财政部放话制裁",
+       what:"白宫科技政策办公室主任Kratsios称Moonshot“蒸馏”Anthropic的Fable来打造Kimi K3，并经泰国使用受限英伟达GB300芯片；财政部长Bessent称制裁与实体清单“都在选项内”。多名研究者质疑：Fable 7/1才公开、K3 7/16发布，仅15天难以完成。",
+       why:"把中美AI竞争推向“制裁模型”的新阶段，可能为处罚基于美国技术训练的外国模型立下先例。",
+       who:"Anthropic、英伟达、中国AI实验室、美国出口管制体系。",
+       watch:"财政部是否采取行动、Moonshot回应及双方证据。"},
+     en:{t:"White House accuses China's Moonshot AI of 'distilling' Anthropic's Fable; Treasury threatens sanctions",
+       what:"OSTP director Kratsios said Moonshot distilled Anthropic's Fable to build Kimi K3 and used restricted Nvidia GB300 chips via Thailand; Treasury Sec. Bessent said sanctions and Entity-List designation are 'on the table.' Researchers dispute it: Fable went public 7/1 and K3 shipped 7/16 — only 15 days.",
+       why:"Pushes US–China AI rivalry toward 'sanctioning models,' potentially setting precedent for penalizing foreign models trained on US technology.",
+       who:"Anthropic, Nvidia, Chinese AI labs, the US export-control regime.",
+       watch:"Whether Treasury acts, Moonshot's response, and evidence from both sides."}},
+
+    {id:"t3",cat:"ai",conf:"fact",time:"2026-07-22",
+     src:[{n:"Bloomberg",u:"https://www.bloomberg.com/news/articles/2026-07-22/openai-plans-to-spend-over-30-billion-on-georgia-data-center"},{n:"Help Net Security",u:"https://www.helpnetsecurity.com/2026/07/22/openai-presence-ai-agent-platform/"}],
+     zh:{t:"OpenAI发布企业级智能体平台“Presence”，并计划投资超300亿美元的佐治亚数据中心",
+       what:"Presence用于部署带护栏的企业语音/聊天智能体，含策略控制、权限限制、升级转人工与上线前模拟测试；场景涵盖客服、外呼销售、内部IT。同日宣布在佐治亚州萨凡纳附近建超300亿美元数据中心，已锁定3.2GW电力。",
+       why:"OpenAI正切入企业智能体运营（直接对标Salesforce、微软），并提前锁定算力与电力。",
+       who:"企业软件厂商、呼叫中心/CCaaS现有玩家、电力与公用事业。",
+       watch:"企业采用速度、数据中心的融资与建设合作方。"},
+     en:{t:"OpenAI launches enterprise agent platform 'Presence'; plans $30B+ Georgia data center",
+       what:"Presence deploys guardrailed enterprise voice/chat agents with policy controls, permissioning, human escalation and pre-deployment simulation — for support, outbound sales and internal IT. Separately, a $30B+ data center near Savannah, GA, with 3.2GW of power secured.",
+       why:"OpenAI is moving into enterprise agent operations (competing with Salesforce and Microsoft) while locking in compute and power.",
+       who:"Enterprise-software vendors, contact-center/CCaaS incumbents, power and utilities.",
+       watch:"Enterprise adoption pace and financing/build partners for the data center."}},
+
+    {id:"t4",cat:"macro",conf:"fact",time:"2026-07-22",
+     src:[{n:"World Oil",u:"https://worldoil.com/news/2026/7/22/oil-rallies-toward-95-amid-escalating-u-s-iran-conflict/"},{n:"MSN Markets",u:"https://www.msn.com/en-us/money/top-stocks/markets-news-july-22-2026-major-indexes-end-lower-ahead-of-big-tech-earnings-oil-prices-treasury-yields-gain/ar-AA28rSN4"}],
+     zh:{t:"美伊冲突升级推动油价逼近95美元，美债收益率与通胀担忧同步上行",
+       what:"美国对伊朗连续第11晚打击、胡塞武装再度威胁红海航运、里海管道联盟码头中断，共同推高WTI逼近95美元；10年期美债收益率触及约4.67%（5月19日以来最高），黄金+1.6%至4140美元。",
+       why:"能源驱动的通胀让美联储更难降息，抬升“滞胀”风险，恰逢FOMC临近。",
+       who:"航空、能源、利率敏感板块、消费者。",
+       watch:"霍尔木兹海峡原油流量、7/28–29 FOMC。"},
+     en:{t:"US–Iran escalation drives oil toward $95; Treasury yields and inflation fears climb",
+       what:"An 11th night of US strikes on Iran, renewed Houthi threats to Red Sea shipping and a Caspian Pipeline terminal disruption pushed WTI toward $95. The 10Y yield hit ~4.67% (highest since May 19) and gold rose 1.6% to $4,140.",
+       why:"Energy-driven inflation makes rate cuts harder and raises stagflation risk, right as the FOMC meets.",
+       who:"Airlines, energy, rate-sensitive sectors, consumers.",
+       watch:"Crude flows through the Strait of Hormuz; the 7/28–29 FOMC."}},
+
+    {id:"t5",cat:"macro",conf:"spec",time:"2026-07-20 week · ongoing",
+     src:[{n:"Forbes",u:"https://www.forbes.com/sites/investor-hub/article/fed-meeting-tracker-interest-rate-strategy/"},{n:"CNBC (June hold)",u:"https://www.cnbc.com/2026/06/17/fed-interest-rate-decision-june-2026.html"}],
+     zh:{t:"FOMC 7/28–29临近，市场押注加息概率上升，美联储关注点转向通胀",
+       what:"美联储6月维持利率于3.50%–3.75%，并将2026年通胀预期上调至3.6%。理事Waller等鹰派言论强化加息猜测，CME FedWatch显示7月加息概率约25%。",
+       why:"若加息或“鹰派按兵不动”，将压制股市，尤其是高估值AI板块。",
+       who:"股票、债券、按揭/地产、美元。",
+       watch:"7/29 下午2点（美东）利率决议与新闻发布会。"},
+     en:{t:"Rate-hike odds rise into the 7/28–29 FOMC as the Fed's focus flips to inflation",
+       what:"The Fed held at 3.50%–3.75% in June and raised its 2026 inflation projection to 3.6%. Hawkish remarks from Gov. Waller intensified hike talk; CME FedWatch shows ~25% odds of a July hike.",
+       why:"A hike — or a hawkish hold — would pressure equities, especially high-multiple AI names.",
+       who:"Equities, bonds, mortgages/housing, the US dollar.",
+       watch:"The rate decision at 2:00 PM ET on 7/29 and the press conference."}}
+  ],
+  market:[
+    {nm:"S&P 500",val:"7,498.96",chg:"+0.14%",dir:"up",why:{zh:"财报前震荡，小幅收高。",en:"Choppy into earnings; small gain."}},
+    {nm:"Nasdaq",val:"25,690.90",chg:"-0.57%",dir:"down",why:{zh:"AI股盘中波动走低。",en:"AI names swung lower intraday."}},
+    {nm:"Dow Jones",val:"52,218.58",chg:"-0.01%",dir:"flat",why:{zh:"基本持平。",en:"Essentially flat."}},
+    {nm:"US 2Y Yield",val:"4.31%",chg:"higher",dir:"down",why:{zh:"加息预期升温。",en:"Rate-hike bets firm up."}},
+    {nm:"US 10Y Yield",val:"4.67%",chg:"+~4bps",dir:"down",why:{zh:"5/19以来最高，油价+通胀。",en:"Highest since 5/19 on oil/inflation."}},
+    {nm:"US Dollar (DXY)",val:"101.13",chg:"-0.1%",dir:"down",why:{zh:"小幅走弱。",en:"Edged lower."}},
+    {nm:"Gold",val:"$4,140",chg:"+1.6%",dir:"up",why:{zh:"避险+通胀买盘。",en:"Safe-haven + inflation bid."}},
+    {nm:"WTI Oil",val:"~$95",chg:"higher",dir:"up",why:{zh:"美伊冲突、霍尔木兹风险。",en:"US–Iran conflict, Hormuz risk."}},
+    {nm:"Bitcoin",val:"~$65,900",chg:"-0.7%",dir:"down",why:{zh:"盘中风险偏好回落。",en:"Risk-off intraday fade."}},
+    {nm:"NVIDIA (NVDA)",val:"$212.06",chg:"close 7/22",dir:"flat",why:{zh:"AI资本开支受审视。",en:"AI-capex scrutiny in focus."}},
+    {nm:"Alphabet (GOOGL)",val:"$331.99",chg:"-2.95%",dir:"down",why:{zh:"收盘跌，盘后因资本开支再跌。",en:"Down at close; fell further after hours on capex."}},
+    {nm:"Mega-cap Tech",val:"MSFT/META/AMZN",chg:"-1.8 / -2.5 / -1.1%",dir:"down",why:{zh:"7/22盘中；AAPL 7/30财报（暂无当日数据）。",en:"Intraday 7/22; AAPL reports 7/30 (no move yet)."}}
+  ],
+  marketNote:{zh:"数据为2026-07-22美股收盘/盘中，美东时间；标注为盘中者非收盘价。资金市场数据随时间变化，请以实时行情为准。",en:"Figures reflect the 2026-07-22 US session (close/intraday), ET; items marked intraday are not closing prices. Market data changes over time — check live quotes."},
+  ai:[
+    {id:"a1",cat:"ai",conf:"fact",time:"2026-07-22",
+     src:[{n:"Help Net Security",u:"https://www.helpnetsecurity.com/2026/07/22/openai-presence-ai-agent-platform/"}],
+     zh:{t:"OpenAI「Presence」：企业智能体部署平台",co:"OpenAI",what:"把公司政策、权限控制、升级规则与上线前模拟打包成统一部署框架，支持语音与聊天智能体。",impact:"直接进入企业智能体运营层，冲击呼叫中心与CX软件市场。"},
+     en:{t:"OpenAI 'Presence': enterprise agent deployment platform",co:"OpenAI",what:"Bundles company policy, permissioning, escalation rules and pre-deployment simulation into one framework for voice and chat agents.",impact:"Moves OpenAI into enterprise agent operations, pressuring contact-center and CX software."}},
+    {id:"a2",cat:"ai",conf:"fact",time:"2026-07-22",
+     src:[{n:"Saxo",u:"https://www.home.saxo/content/articles/equities/tesla-alphabet-earnings-23072026"}],
+     zh:{t:"Google云收入同比+82%至248亿美元",co:"Alphabet / Google Cloud",what:"云与AI需求强劲，收入远超预期（预期约224亿美元）。",impact:"证明AI云货币化真实存在，但449亿美元资本开支引发回报担忧。"},
+     en:{t:"Google Cloud revenue +82% YoY to $24.8B",co:"Alphabet / Google Cloud",what:"Cloud and AI demand ran hot, well above the ~$22.4B expected.",impact:"Shows AI-cloud monetization is real — but $44.9B capex raises return worries."}},
+    {id:"a3",cat:"leadership",conf:"report",time:"2026-07-22",
+     src:[{n:"Tech Startups",u:"https://techstartups.com/2026/07/22/top-tech-news-today-july-22-2026-apple-anthropic-google-nvidia/"}],
+     zh:{t:"Anthropic将中期选举投入提高至4000万美元，Q2游说支出+26%",co:"Anthropic",what:"再向Public First Action追加2000万美元，支持主张更强AI监管的候选人；Q2游说支出197万美元，超过英伟达。",impact:"AI政策战线升温，头部实验室正加大对监管框架的影响力投入。"},
+     en:{t:"Anthropic lifts midterm spend to $40M; Q2 lobbying up 26%",co:"Anthropic",what:"Added $20M to Public First Action backing candidates favoring stronger AI oversight; spent $1.97M on Q2 lobbying, outspending Nvidia.",impact:"The AI-policy fight is heating up as frontier labs invest heavily in shaping regulation."}},
+    {id:"a4",cat:"ai",conf:"report",time:"2026-07-22",
+     src:[{n:"XTB",u:"https://www.xtb.com/int/market-analysis/news-and-research/alphabet-and-tesla-report-earnings-google-s-ai-business-shines-tesla-accelerates-optimus-plans"}],
+     zh:{t:"Tesla在财报电话会上加速Optimus人形机器人计划",co:"Tesla",what:"管理层将Optimus定位为长期增长引擎，尽管当季汽车毛利率承压。",impact:"把估值叙事从汽车向机器人/自动化转移，考验投资者耐心。"},
+     en:{t:"Tesla accelerates Optimus humanoid plans on its earnings call",co:"Tesla",what:"Management framed Optimus as a long-term growth engine even as auto margins came under pressure this quarter.",impact:"Shifts the valuation narrative from cars toward robotics/automation — testing investor patience."}}
+  ],
+  startups:[
+    {id:"s1",cat:"startups",conf:"report",time:"2026-07 roundup",
+     src:[{n:"Tech Startups",u:"https://techstartups.com/2026/07/22/venture-capital-startup-funding-roundup-july-22-2026-andreessen-horowitz-redpoint-ventures-sequoia-capital-insight-partners-more/"}],
+     zh:{t:"Together AI 完成8亿美元 C轮",does:"让企业在开源模型上训练与推理的AI平台。",amt:"$800M Series C",inv:"Aramco Ventures、Vista Equity、General Catalyst、Nvidia、Salesforce Ventures等",why:"资金持续涌入AI“管道层”——算力、模型运营与可靠性工程。"},
+     en:{t:"Together AI closes $800M Series C",does:"Platform for enterprises to train and run AI on open-source models.",amt:"$800M Series C",inv:"Aramco Ventures, Vista Equity, General Catalyst, Nvidia, Salesforce Ventures",why:"Capital keeps flowing into the AI 'plumbing' — compute, model ops and reliability."}},
+    {id:"s2",cat:"startups",conf:"report",time:"2026-07 roundup",
+     src:[{n:"Tech Startups",u:"https://techstartups.com/2026/07/06/venture-capital-startup-funding-roundup-july-6-2026/"}],
+     zh:{t:"SambaNova Systems 融资10亿美元 F轮",does:"AI硬件与算力基础设施。",amt:"$1B Series F",inv:"General Atlantic等",why:"资本押注英伟达之外的替代芯片路线。"},
+     en:{t:"SambaNova Systems raises $1B Series F",does:"AI hardware and compute infrastructure.",amt:"$1B Series F",inv:"General Atlantic and others",why:"Investors are backing alt-silicon challengers to Nvidia."}},
+    {id:"s3",cat:"startups",conf:"report",time:"2026-07 roundup",
+     src:[{n:"Tech Startups",u:"https://techstartups.com/2026/07/02/venture-capital-startup-funding-roundup-july-2-2026/"}],
+     zh:{t:"Norm AI 融资1.2亿美元 C轮",does:"面向合规/法务的AI智能体平台。",amt:"$120M Series C",inv:"Khosla Ventures、Bain Capital Ventures、Blackstone等",why:"垂直行业的“智能体化”是本轮企业AI的主线之一。"},
+     en:{t:"Norm AI raises $120M Series C",does:"AI-agent platform for legal and compliance work.",amt:"$120M Series C",inv:"Khosla Ventures, Bain Capital Ventures, Blackstone",why:"Vertical 'agentification' is a defining theme of this enterprise-AI cycle."}},
+    {id:"s4",cat:"startups",conf:"report",time:"2026-07 roundup",
+     src:[{n:"Tech Startups",u:"https://techstartups.com/2026/07/01/venture-capital-startup-funding-roundup-july-1-2026/"}],
+     zh:{t:"Quantum Systems 融资12亿美元 D轮",does:"国防科技与自主无人系统。",amt:"$1.2B Series D",inv:"Blackstone、Airbus等",why:"国防科技融资规模走高，反映地缘紧张下的资本再配置。"},
+     en:{t:"Quantum Systems raises $1.2B Series D",does:"Defense tech and autonomous systems.",amt:"$1.2B Series D",inv:"Blackstone, Airbus and others",why:"Defense-tech check sizes are climbing as capital rotates amid geopolitical tension."}}
+  ],
+  product:[
+    {id:"p1",cat:"product",conf:"report",time:"2026-07-22 · Hacker News",
+     src:[{n:"Hacker News front",u:"https://news.ycombinator.com/front"}],
+     zh:{t:"“Apple无需为不扫描iCloud的CSAM担责” 登上HN热门",disc:"开发者与隐私社区就“隐私 vs 儿童安全”的责任边界激烈讨论。",pain:"平台在内容扫描上的法律与道德义务不清晰。",who:"云存储/平台厂商、隐私工具、合规团队。",opp:"隐私保护型内容安全方案存在需求空间。"},
+     en:{t:"'Apple defeats liability for not scanning iCloud for CSAM' tops HN",disc:"Developer and privacy communities debated the liability line between privacy and child safety.",pain:"Unclear legal/moral duty of platforms to scan content.",who:"Cloud-storage/platform vendors, privacy tooling, compliance teams.",opp:"Room for privacy-preserving content-safety approaches."}},
+    {id:"p2",cat:"product",conf:"report",time:"2026-07 · Product Hunt",
+     src:[{n:"Product Hunt (July)",u:"https://www.producthunt.com/leaderboard/monthly/2026/7"}],
+     zh:{t:"趋势：AI智能体产品转向“嵌入式、按工作流的AI队友”",disc:"多个独立上榜产品（Framer AI Agents、Sim、Glaze by Raycast、Jockey by TwelveLabs）都强调嵌入现有应用、专注具体工作流，而非通用聊天机器人。",pain:"通用bot难落地；用户要能直接在工作流中干活的智能体。",who:"SaaS厂商、设计/销售/分析等垂直工具。",opp:"“垂直+嵌入式”智能体是明确的产品机会（多来源印证，可视为趋势）。"},
+     en:{t:"Trend: AI-agent products shift to embedded, workflow-specific 'teammates'",disc:"Multiple independent top launches (Framer AI Agents, Sim, Glaze by Raycast, Jockey by TwelveLabs) emphasize embedding in existing apps and specific workflows over general chatbots.",pain:"General bots are hard to adopt; users want agents that do work inside the workflow.",who:"SaaS vendors and vertical tools across design, sales, analytics.",opp:"'Vertical + embedded' agents are a clear product opening (corroborated across sources → trend)."}},
+    {id:"p3",cat:"product",conf:"fact",time:"2026-07-22 · security",
+     src:[{n:"Hacker News front",u:"https://news.ycombinator.com/front"}],
+     zh:{t:"Linux内核漏洞“RefluXFS”（CVE-2026-64600）披露",disc:"安全社区讨论新披露的内核缺陷及其影响面。",pain:"基础设施补丁与供应链安全压力再起。",who:"运维/平台团队、云厂商、企业安全。",opp:"内核加固与快速补丁编排工具需求上升。"},
+     en:{t:"Linux kernel flaw 'RefluXFS' (CVE-2026-64600) disclosed",disc:"Security community discussed the newly disclosed kernel bug and its blast radius.",pain:"Renewed pressure on infra patching and supply-chain security.",who:"Ops/platform teams, cloud providers, enterprise security.",opp:"Rising demand for kernel hardening and fast patch-orchestration tooling."}}
+  ],
+  voices:[
+    {id:"v1",cat:"leadership",conf:"report",time:"2026-07-22",
+     src:[{n:"CyberScoop",u:"https://cyberscoop.com/white-house-accuses-moonshot-ai-anthropic-model-distillation/"}],
+     zh:{name:"Michael Kratsios",role:"白宫科技政策办公室(OSTP)主任",plat:"社交平台",view:"“我们掌握信息，Moonshot AI蒸馏了Anthropic的Fable用于其K3模型”，并称其经泰国获取受限GB300芯片。",bg:"中美AI技术竞争与出口管制。",note:"官方指控（未经独立证实），措辞强硬，可能触发制裁。"},
+     en:{name:"Michael Kratsios",role:"Director, White House OSTP",plat:"Social media",view:"'We have information that Moonshot AI distilled Anthropic's Fable for its K3 model,' alleging it accessed restricted GB300 chips via Thailand.",bg:"US–China AI rivalry and export controls.",note:"An official allegation (not independently confirmed); strong language that could trigger sanctions."}},
+    {id:"v2",cat:"leadership",conf:"op",time:"2026-07-22",
+     src:[{n:"TechCrunch",u:"https://techcrunch.com/2026/07/22/treasury-threatens-sanctions-after-white-house-claims-moonshot-distilled-anthropics-fable/"}],
+     zh:{name:"Scott Bessent",role:"美国财政部长",plat:"官方表态",view:"政府可对使用不当获取的美国技术训练的外国AI模型实施制裁；对大规模蒸馏行为，制裁与实体清单“都在选项内”。",bg:"针对Moonshot指控的后续。",note:"政策意向（尚未落地为具体措施）。"},
+     en:{name:"Scott Bessent",role:"US Treasury Secretary",plat:"Official remarks",view:"The administration can sanction foreign AI models built on improperly obtained US tech; for large-scale distillation, sanctions or Entity-List designation are 'on the table.'",bg:"Follow-up to the Moonshot allegation.",note:"Policy intent (not yet a concrete measure)."}},
+    {id:"v3",cat:"macro",conf:"op",time:"2026-07 · recent",
+     src:[{n:"Forbes",u:"https://www.forbes.com/sites/investor-hub/article/fed-meeting-tracker-interest-rate-strategy/"}],
+     zh:{name:"Christopher Waller",role:"美联储理事",plat:"公开讲话",view:"言论被解读为鹰派，市场认为美联储关注点已从就业“彻底转向”通胀遏制，加息猜测升温。",bg:"6月维持利率、通胀预期上调至3.6%后。",note:"个人观点/政策信号，非最终决策。"},
+     en:{name:"Christopher Waller",role:"Federal Reserve Governor",plat:"Public remarks",view:"Comments read as hawkish; markets see the Fed's focus 'completely flipped' from jobs to containing inflation, lifting hike speculation.",bg:"After June's hold and a 3.6% inflation projection.",note:"Personal view / policy signal — not a final decision."}},
+    {id:"v4",cat:"ai",conf:"op",time:"2026-07-22",
+     src:[{n:"Crypto Briefing",u:"https://cryptobriefing.com/moonshot-ai-distillation-allegations/"}],
+     zh:{name:"AI研究者（含Redwood Research分析）",role:"独立研究者/机构",plat:"公开评论",view:"质疑蒸馏指控的时间线：Fable 7/1才公开、K3 7/16发布，仅15天难以完成2.8万亿参数模型的数据生成与训练；但交叉熵分析发现K3异常频繁自称为Claude。",bg:"对白宫指控的独立回应。",note:"专家质疑与旁证并存——事实待查，勿下定论。"},
+     en:{name:"AI researchers (incl. Redwood Research analysis)",role:"Independent researchers/orgs",plat:"Public commentary",view:"Dispute the distillation timeline: Fable went public 7/1 and K3 shipped 7/16 — 15 days is too short to build a 2.8T-parameter model; yet cross-entropy analysis found K3 identifies as Claude unusually often.",bg:"Independent response to the White House claim.",note:"Expert skepticism plus circumstantial evidence — facts unresolved; don't conclude."}}
+  ],
+  watch:[
+    {when:"7/28–29",zh:"FOMC利率决议（决议7/29下午2点美东）+ 主席发布会——是否转鹰",en:"FOMC decision (7/29, 2 PM ET) + chair presser — hawkish turn?"},
+    {when:"7/29",zh:"微软与Meta财报（盘后）——重点看AI资本开支指引",en:"Microsoft & Meta earnings (after close) — AI capex guidance in focus"},
+    {when:"7/30",zh:"苹果与亚马逊财报（盘后）——AWS增长与消费信号",en:"Apple & Amazon earnings (after close) — AWS growth and consumer signals"},
+    {when:"每日",zh:"美伊冲突与霍尔木兹海峡原油流量——油价与通胀风险",en:"US–Iran conflict & Strait of Hormuz oil flows — oil and inflation risk"},
+    {when:"未定",zh:"财政部对Moonshot的潜在制裁/实体清单行动",en:"Potential Treasury sanctions / Entity-List action against Moonshot"}
+  ],
+  terms:[
+    {en:"Model Distillation (as attack)",zh:"模型蒸馏（作为窃取手段）",def:{zh:"用竞品模型的输出训练更便宜的模型来复制其能力。",en:"Training a cheaper model on a rival's outputs to copy it."},trend:{zh:"白宫指控Moonshot蒸馏Anthropic的Fable。",en:"White House accused Moonshot of distilling Anthropic's Fable."},rel:"Anthropic · Moonshot · Kratsios",src:[{n:"TechCrunch",u:"https://techcrunch.com/2026/07/22/treasury-threatens-sanctions-after-white-house-claims-moonshot-distilled-anthropics-fable/"}]},
+    {en:"Sovereign AI",zh:"主权AI",def:{zh:"国家或企业在自控的基础设施与数据上运行AI。",en:"Running AI on self-controlled infrastructure and data."},trend:{zh:"RAISE峰会与受监管行业推动，被视为2026主线。",en:"Pushed by the RAISE Summit and regulated industries."},rel:"Nvidia · OpenText · Google Cloud",src:[{n:"SpectroCloud",u:"https://www.spectrocloud.com/blog/enterprise-ai-2026-trends"}]},
+    {en:"Agentic AI",zh:"智能体AI",def:{zh:"能自主规划并执行多步任务的AI，而非只对话。",en:"AI that autonomously plans and executes multi-step tasks."},trend:{zh:"OpenAI Presence与Product Hunt智能体潮。",en:"OpenAI Presence and a wave of Product Hunt agents."},rel:"OpenAI · Salesforce · Google Cloud",src:[{n:"Insentra",u:"https://www.insentragroup.com/us/insights/not-geek-speak/generative-ai/agentic-ai-takes-the-wheel-a-deep-dive-into-2026/"}]},
+    {en:"Context Engineering",zh:"上下文工程",def:{zh:"组织企业数据与上下文，让智能体稳定可靠地行动。",en:"Structuring data/context so agents act reliably."},trend:{zh:"被称为智能体栈“缺失的一层”。",en:"Called the 'missing layer' of the agentic stack."},rel:"Google Cloud · OpenText",src:[{n:"SiliconANGLE",u:"https://siliconangle.com/2026/04/24/context-engineering-missing-layer-agentic-ai-googlecloudnext/"}]},
+    {en:"AI Capex",zh:"AI资本开支",def:{zh:"为建AI算力而投入的芯片与数据中心支出。",en:"Spending on chips and data centers to build AI capacity."},trend:{zh:"Alphabet资本开支翻倍至449亿美元，成财报焦点。",en:"Alphabet's capex doubled to $44.9B — earnings focus."},rel:"Alphabet · Microsoft · Nvidia",src:[{n:"CNBC",u:"https://www.cnbc.com/2026/07/22/alphabet-tesla-test-investor-patience-ai-spending-overshadows-growth.html"}]},
+    {en:"Negative Free Cash Flow",zh:"负自由现金流",def:{zh:"投入消耗的现金超过经营产生的现金。",en:"Cash burn exceeding operating cash generation."},trend:{zh:"Alphabet与Tesla本季均转负。",en:"Both Alphabet and Tesla reported it this quarter."},rel:"Alphabet · Tesla",src:[{n:"Saxo",u:"https://www.home.saxo/content/articles/equities/tesla-alphabet-earnings-23072026"}]},
+    {en:"Presence (OpenAI)",zh:"OpenAI Presence",def:{zh:"OpenAI的企业语音/聊天智能体部署产品。",en:"OpenAI's enterprise voice/chat agent deployment product."},trend:{zh:"7/22发布，带护栏与策略控制。",en:"Launched 7/22 with guardrails and policy controls."},rel:"OpenAI · 企业软件",src:[{n:"Help Net Security",u:"https://www.helpnetsecurity.com/2026/07/22/openai-presence-ai-agent-platform/"}]},
+    {en:"GB300",zh:"英伟达GB300",def:{zh:"英伟达最新一代Blackwell架构AI服务器。",en:"Nvidia's latest Blackwell-generation AI server."},trend:{zh:"被指经泰国规避出口管制流入。",en:"Cited in export-control-evasion allegations via Thailand."},rel:"Nvidia · Moonshot · 出口管制",src:[{n:"The Hill",u:"https://thehill.com/policy/technology/5984510-white-house-moonshot-ai-anthropic-nvidia/"}]},
+    {en:"Entity List",zh:"实体清单",def:{zh:"美国出口黑名单，限制目标获取美国技术。",en:"US export blacklist restricting access to US tech."},trend:{zh:"被提出可能适用于Moonshot。",en:"Floated as possibly applying to Moonshot."},rel:"US Treasury · Moonshot",src:[{n:"TechCrunch",u:"https://techcrunch.com/2026/07/22/treasury-threatens-sanctions-after-white-house-claims-moonshot-distilled-anthropics-fable/"}]},
+    {en:"Geopolitical Risk Premium",zh:"地缘风险溢价",def:{zh:"市场为冲突与供应风险额外计入的价格。",en:"Extra price markets add for conflict/supply risk."},trend:{zh:"美伊冲突推油价逼近95美元。",en:"US–Iran conflict pushed oil toward $95."},rel:"WTI · 航运 · 航空",src:[{n:"World Oil",u:"https://worldoil.com/news/2026/7/22/oil-rallies-toward-95-amid-escalating-u-s-iran-conflict/"}]},
+    {en:"Strait of Hormuz",zh:"霍尔木兹海峡",def:{zh:"临近伊朗的关键原油航运咽喉。",en:"Key oil-shipping chokepoint near Iran."},trend:{zh:"美国威胁对干扰航运予以报复。",en:"US threatened retaliation over shipping disruptions."},rel:"原油 · 伊朗 · 胡塞武装",src:[{n:"World Oil",u:"https://worldoil.com/news/2026/7/22/oil-rallies-toward-95-amid-escalating-u-s-iran-conflict/"}]},
+    {en:"AI Token Reduction",zh:"AI Token削减",def:{zh:"用提示压缩与结构化查询降低推理成本。",en:"Cutting inference cost via prompt compression/structured queries."},trend:{zh:"企业借此把AI成本降50%–75%。",en:"Enterprises cutting AI costs 50–75%."},rel:"企业AI · 成本优化",src:[{n:"SpectroCloud",u:"https://www.spectrocloud.com/blog/enterprise-ai-2026-trends"}]},
+    {en:"Embedded Agents",zh:"嵌入式智能体",def:{zh:"嵌入现有应用、专注具体工作流的AI队友。",en:"Workflow-specific AI teammates inside existing apps."},trend:{zh:"Product Hunt上榜产品的共同模式。",en:"A shared pattern across Product Hunt launches."},rel:"Framer · Raycast · TwelveLabs",src:[{n:"Product Hunt",u:"https://www.producthunt.com/categories/ai-agents"}]},
+    {en:"Optimus",zh:"特斯拉Optimus",def:{zh:"特斯拉的人形机器人项目。",en:"Tesla's humanoid-robot program."},trend:{zh:"财报会上被加速推进为长期增长引擎。",en:"Accelerated on the earnings call as a growth engine."},rel:"Tesla · 机器人 · 自动化",src:[{n:"XTB",u:"https://www.xtb.com/int/market-analysis/news-and-research/alphabet-and-tesla-report-earnings-google-s-ai-business-shines-tesla-accelerates-optimus-plans"}]},
+    {en:"Hyperscaler AI Debt",zh:"超大规模云AI负债",def:{zh:"云巨头以举债支撑数据中心扩张。",en:"Debt-funded data-center buildout by cloud giants."},trend:{zh:"Alphabet财报让该风险进入聚光灯。",en:"Alphabet's report put this risk in the spotlight."},rel:"Alphabet · Microsoft · Amazon",src:[{n:"Motley Fool",u:"https://www.fool.com/coverage/stock-market-today/2026/07/22/stock-market-midday-july-22-markets-brace-for-alphabet-earnings-as-hyperscaler-s-ai-debt-comes-under-spotlight/"}]}
+  ]
+}
+];
+
+/* ============================================================
+   UI STRINGS (i18n) + confidence labels
+   ============================================================ */
+const UI = {
+  title:{zh:"X's Daybreak Intelligence Brief",en:"X's Daybreak Intelligence Brief"},
+  sub:{zh:"破晓时分，为你把全球商业与科技过去24小时的信号滤出来",en:"At daybreak — the last 24 hours of business & tech, distilled into signal"},
+  lastUpdated:{zh:"更新时间",en:"Last updated"},
+  coverage:{zh:"覆盖范围",en:"Coverage"},
+  coverageVal:{zh:"过去24小时",en:"Previous 24 hours"},
+  readTime:{zh:"预计阅读",en:"Reading time"},
+  readTimeVal:{zh:"5–10 分钟",en:"5–10 minutes"},
+  digest:{zh:"✉︎ 邮件摘要 · 太平洋时间6:00",en:"✉︎ Email digest · 6:00 AM PT"},
+  searchPh:{zh:"搜索公司 / 人物 / 关键词…",en:"Search company / person / keyword…"},
+  fav:{zh:"收藏",en:"Favorites"},
+  secSummary:{zh:"今日要点摘要",en:"Executive Summary"},
+  secTop5:{zh:"今日五大要闻",en:"Today's Top 5"},
+  secMarket:{zh:"市场快照",en:"Market Snapshot"},
+  secAI:{zh:"AI 与科技",en:"AI & Technology"},
+  secStartup:{zh:"创业与资本",en:"Startup & Capital Activity"},
+  secProduct:{zh:"产品与用户信号",en:"Product & User Signals"},
+  secVoices:{zh:"高管与专家观点",en:"Executive Voices"},
+  secWatch:{zh:"接下来关注",en:"What to Watch Next"},
+  secTerms:{zh:"今日新兴热词",en:"Today's Emerging Terms"},
+  kWhat:{zh:"发生了什么",en:"What happened"},
+  kWhy:{zh:"为什么重要",en:"Why it matters"},
+  kWho:{zh:"影响谁",en:"Who's affected"},
+  kWatch:{zh:"接下来观察",en:"Watch next"},
+  kImpact:{zh:"商业影响",en:"Business impact"},
+  kCompany:{zh:"相关公司",en:"Company"},
+  kDoes:{zh:"公司做什么",en:"What it does"},
+  kAmt:{zh:"金额",en:"Amount"},
+  kInv:{zh:"投资方",en:"Investors"},
+  kWhyWatch:{zh:"为何关注",en:"Why watch"},
+  kDisc:{zh:"用户在讨论",en:"Discussion"},
+  kPain:{zh:"高频痛点",en:"Pain point"},
+  kOpp:{zh:"产品机会",en:"Opportunity"},
+  kRole:{zh:"职位",en:"Role"},
+  kPlat:{zh:"平台",en:"Platform"},
+  kView:{zh:"观点",en:"View"},
+  kBg:{zh:"背景",en:"Context"},
+  kNote:{zh:"性质",en:"Nature"},
+  kWhyTrend:{zh:"为何走红",en:"Why trending"},
+  kRel:{zh:"相关",en:"Related"},
+  sources:{zh:"来源",en:"Sources"},
+  filters:{zh:["全部","宏观","市场","AI","创业","产品","领导力","政策"],en:["All","Macro","Markets","AI","Startups","Product","Leadership","Policy"]},
+  secPolicy:{zh:"政策与政治动向",en:"Policy & Politics"},
+  kStage:{zh:"所处阶段",en:"Stage"},
+  chatTitle:{zh:"问答小助手",en:"Ask the Brief"},
+  chatPh:{zh:"问我今天的简报，例如：对SaaS创业者有什么影响？",en:"Ask about today's brief, e.g. what matters for a SaaS founder?"},
+  chatHint:{zh:"基于当前所选日期的简报内容回答",en:"Answers grounded in the currently selected edition"},
+  chatErr:{zh:"助手暂不可用（需在 Claude 应用内打开此页面）。",en:"Assistant unavailable (open this page inside the Claude app)."},
+  chatSend:{zh:"发送",en:"Send"},
+  favEmpty:{zh:"暂无收藏。点击任意条目右上角的 ☆ 收藏。",en:"No favorites yet. Tap the ☆ on any item to save it."},
+  searchEmpty:{zh:"没有匹配的条目。",en:"No matching items."},
+  ftr1:{zh:"每日太平洋时间早上6:00自动更新 · 内容基于过去24小时的公开来源，附原始链接 · 明确区分：确认事实 / 报道信息 / 专家观点 / 市场推测",
+        en:"Auto-updates daily at 6:00 AM PT · Based on public sources from the last 24h with original links · Clearly labeled: Confirmed Fact / Reported / Expert Opinion / Market Speculation"},
+  ftr2:{zh:"本简报为决策辅助，不构成投资、法律或财务建议。市场数据随时间变化，请以实时行情为准。",
+        en:"This brief is a decision aid, not investment, legal or financial advice. Market data changes over time — verify with live quotes."}
+};
+const CONF = {
+  fact:{zh:"确认事实",en:"Confirmed Fact",cls:"b-fact"},
+  report:{zh:"报道信息",en:"Reported",cls:"b-report"},
+  op:{zh:"专家观点",en:"Expert Opinion",cls:"b-op"},
+  spec:{zh:"市场推测",en:"Market Speculation",cls:"b-spec"}
+};
+const CATS = ["all","macro","markets","ai","startups","product","leadership","policy"];
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let lang = localStorage.getItem("deib_lang") || "zh";
+let theme = localStorage.getItem("deib_theme") || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+let curDate = BRIEFS[0].date;
+let filter = "all";
+let favOnly = false;
+let query = "";
+let favs = JSON.parse(localStorage.getItem("deib_favs") || "[]");
+
+const $ = s => document.querySelector(s);
+const T = o => (o && (o[lang] ?? o.zh)) || "";
+const esc = s => (s==null?"":String(s)).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function hl(s){ if(!query) return s; try{const r=new RegExp("("+query.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")","ig");return s.replace(r,"<mark>$1</mark>");}catch(e){return s;} }
+const curBrief = () => BRIEFS.find(b=>b.date===curDate) || BRIEFS[0];
+const isFav = id => favs.includes(id);
+function toggleFav(id){ favs = isFav(id) ? favs.filter(x=>x!==id) : [...favs,id]; localStorage.setItem("deib_favs",JSON.stringify(favs)); render(); }
+function matchQ(txt){ return !query || txt.toLowerCase().includes(query.toLowerCase()); }
+function catOK(cat){ return filter==="all" || cat===filter; }
+
+/* ============================================================
+   RENDER HELPERS
+   ============================================================ */
+function badge(conf){ const c=CONF[conf]; return c?`<span class="badge ${c.cls}">${T(c)}</span>`:""; }
+function catTag(cat){ const i=CATS.indexOf(cat); const name=i>0?UI.filters[lang][i]:cat; return `<span class="cat-tag">${esc(name)}</span>`; }
+function starBtn(id){ return `<button class="star ${isFav(id)?'on':''}" data-fav="${id}" title="收藏 / Favorite">${isFav(id)?'★':'☆'}</button>`; }
+function srcLinks(src){ if(!src||!src.length) return ""; return `<div class="srcs"><span class="k">${T(UI.sources)}:</span>`+src.map(s=>`<a href="${esc(s.u)}" target="_blank" rel="noopener">${esc(s.n)} ↗</a>`).join("")+`</div>`; }
+function kv(k,v){ return v?`<div class="kv"><span class="k">${k}</span>${hl(esc(v))}</div>`:""; }
+
+function itemText(it){ // aggregate searchable text
+  const o = it[lang]||it.zh||{};
+  return Object.values(o).join(" ") + " " + (it.src||[]).map(s=>s.n).join(" ");
+}
+
+function renderSection(id,titleObj,num,inner,count){
+  if(!inner || !inner.trim()) return "";
+  return `<section data-sec="${id}">
+    <div class="sec-h"><span class="num">${num}</span><h2>${T(titleObj)}</h2>${count!=null?`<span class="cnt">${count}</span>`:""}</div>
+    ${inner}
+  </section>`;
+}
+
+function render(){
+  document.documentElement.setAttribute("data-theme",theme);
+  document.documentElement.lang = lang;
+  const b = curBrief();
+
+  // header
+  $("#ttl").textContent = T(UI.title);
+  $("#subttl").textContent = T(UI.sub);
+  $("#luLbl").textContent = T(UI.lastUpdated);
+  $("#lu").textContent = b.lastUpdated;
+  $("#cpLbl").textContent = T(UI.coverage);
+  $("#cp").textContent = T(UI.coverageVal);
+  $("#rtLbl").textContent = T(UI.readTime);
+  $("#rt").textContent = T(UI.readTimeVal);
+  $("#digestPill").textContent = T(UI.digest);
+  $("#langBtn").textContent = lang==="zh" ? "EN" : "中";
+  $("#themeBtn").textContent = theme==="dark" ? "☀︎" : "🌙";
+  $("#search").placeholder = T(UI.searchPh);
+  $("#favLbl").textContent = T(UI.fav);
+  $("#favBtn").classList.toggle("active",favOnly);
+  $("#ftr1").innerHTML = esc(T(UI.ftr1));
+  $("#ftr2").innerHTML = esc(T(UI.ftr2));
+
+  // date selector
+  const ds=$("#dateSel");
+  ds.innerHTML = BRIEFS.map(x=>`<option value="${x.date}" ${x.date===curDate?"selected":""}>${x.date}</option>`).join("");
+
+  // filter chips
+  $("#filters").innerHTML = UI.filters[lang].map((f,i)=>`<span class="chip ${filter===CATS[i]?'active':''}" data-cat="${CATS[i]}">${f}</span>`).join("");
+
+  const showSummary = !favOnly && filter==="all" && !query;
+
+  // ---- Executive Summary
+  let html = "";
+  if(showSummary){
+    html += renderSection("summary",UI.secSummary,"·",`<div class="summary"><div class="lead">${T(b.summary)}</div></div>`);
+  }
+
+  // ---- Top 5
+  const top = b.top5.filter(it=>catOK(it.cat) && (!favOnly||isFav(it.id)) && matchQ(itemText(it)));
+  if(top.length){
+    const inner = top.map(it=>{
+      const o=it[lang]||it.zh;
+      return `<div class="item">
+        <div class="item-h"><div class="t">${hl(esc(o.t))}</div>${starBtn(it.id)}</div>
+        <div class="item-sub">${badge(it.conf)}${catTag(it.cat)}<span>🕒 ${esc(it.time)}</span></div>
+        ${kv(T(UI.kWhat),o.what)}${kv(T(UI.kWhy),o.why)}${kv(T(UI.kWho),o.who)}${kv(T(UI.kWatch),o.watch)}
+        ${srcLinks(it.src)}
+      </div>`;
+    }).join("");
+    html += renderSection("top5",UI.secTop5,"2",inner,top.length);
+  }
+
+  // ---- Market Snapshot (only when no fav/search/filter narrowing, but respect markets filter)
+  if(!favOnly && !query && (filter==="all"||filter==="markets")){
+    const cards = b.market.map(m=>`<div class="card">
+      <div class="nm"><span>${esc(m.nm)}</span></div>
+      <div class="val">${esc(m.val)}</div>
+      <div class="chg ${m.dir}">${esc(m.chg)}</div>
+      <div class="why">${esc(T(m.why))}</div>
+    </div>`).join("");
+    const inner = `<div class="mkt">${cards}</div><div class="mkt-note">${esc(T(b.marketNote))}</div>`;
+    html += renderSection("market",UI.secMarket,"3",inner);
+  }
+
+  // ---- AI & Tech
+  const ai = b.ai.filter(it=>catOK(it.cat) && (!favOnly||isFav(it.id)) && matchQ(itemText(it)));
+  if(ai.length){
+    const inner = ai.map(it=>{const o=it[lang]||it.zh;return `<div class="item">
+      <div class="item-h"><div class="t">${hl(esc(o.t))}</div>${starBtn(it.id)}</div>
+      <div class="item-sub">${badge(it.conf)}${catTag(it.cat)}<span>🕒 ${esc(it.time)}</span></div>
+      ${kv(T(UI.kCompany),o.co)}${kv(T(UI.kWhat),o.what)}${kv(T(UI.kImpact),o.impact)}
+      ${srcLinks(it.src)}
+    </div>`;}).join("");
+    html += renderSection("ai",UI.secAI,"4",inner,ai.length);
+  }
+
+  // ---- Startups
+  const st = b.startups.filter(it=>catOK(it.cat) && (!favOnly||isFav(it.id)) && matchQ(itemText(it)));
+  if(st.length){
+    const inner = st.map(it=>{const o=it[lang]||it.zh;return `<div class="item">
+      <div class="item-h"><div class="t">${hl(esc(o.t))}</div>${starBtn(it.id)}</div>
+      <div class="item-sub">${badge(it.conf)}${catTag(it.cat)}<span>🕒 ${esc(it.time)}</span></div>
+      ${kv(T(UI.kDoes),o.does)}${kv(T(UI.kAmt),o.amt)}${kv(T(UI.kInv),o.inv)}${kv(T(UI.kWhyWatch),o.why)}
+      ${srcLinks(it.src)}
+    </div>`;}).join("");
+    html += renderSection("startups",UI.secStartup,"5",inner,st.length);
+  }
+
+  // ---- Product signals
+  const pr = b.product.filter(it=>catOK(it.cat) && (!favOnly||isFav(it.id)) && matchQ(itemText(it)));
+  if(pr.length){
+    const inner = pr.map(it=>{const o=it[lang]||it.zh;return `<div class="item">
+      <div class="item-h"><div class="t">${hl(esc(o.t))}</div>${starBtn(it.id)}</div>
+      <div class="item-sub">${badge(it.conf)}${catTag(it.cat)}<span>🕒 ${esc(it.time)}</span></div>
+      ${kv(T(UI.kDisc),o.disc)}${kv(T(UI.kPain),o.pain)}${kv(T(UI.kWho),o.who)}${kv(T(UI.kOpp),o.opp)}
+      ${srcLinks(it.src)}
+    </div>`;}).join("");
+    html += renderSection("product",UI.secProduct,"6",inner,pr.length);
+  }
+
+  // ---- Policy & Politics
+  const po = (b.policy||[]).filter(it=>catOK(it.cat) && (!favOnly||isFav(it.id)) && matchQ(itemText(it)));
+  if(po.length){
+    const inner = po.map(it=>{const o=it[lang]||it.zh;return `<div class="item">
+      <div class="item-h"><div class="t">${hl(esc(o.t))}</div>${starBtn(it.id)}</div>
+      <div class="item-sub">${badge(it.conf)}${catTag(it.cat)}<span>🕒 ${esc(it.time)}</span></div>
+      ${kv(T(UI.kWhat),o.what)}${kv(T(UI.kStage),o.stage)}${kv(T(UI.kWho),o.who)}${kv(T(UI.kWatch),o.watch)}
+      ${srcLinks(it.src)}
+    </div>`;}).join("");
+    html += renderSection("policy",UI.secPolicy,"7",inner,po.length);
+  }
+
+  // ---- Executive Voices
+  const vo = b.voices.filter(it=>catOK(it.cat) && (!favOnly||isFav(it.id)) && matchQ(itemText(it)));
+  if(vo.length){
+    const inner = vo.map(it=>{const o=it[lang]||it.zh;return `<div class="item">
+      <div class="item-h"><div class="t">${hl(esc(o.name))} <span style="color:var(--muted);font-weight:500">— ${hl(esc(o.role))}</span></div>${starBtn(it.id)}</div>
+      <div class="item-sub">${badge(it.conf)}${catTag(it.cat)}<span>🕒 ${esc(it.time)}</span><span>${esc(T(UI.kPlat))}: ${esc(o.plat)}</span></div>
+      ${kv(T(UI.kView),o.view)}${kv(T(UI.kBg),o.bg)}${kv(T(UI.kNote),o.note)}
+      ${srcLinks(it.src)}
+    </div>`;}).join("");
+    html += renderSection("voices",UI.secVoices,"8",inner,vo.length);
+  }
+
+  // ---- Watch next
+  if(!favOnly && !query && (filter==="all"||filter==="macro")){
+    const inner = `<ul class="watch" style="list-style:none;padding:0;margin:0">`+b.watch.map(w=>`<li><span class="when">${esc(w.when)}</span>${esc(T({zh:w.zh,en:w.en}))}</li>`).join("")+`</ul>`;
+    html += renderSection("watch",UI.secWatch,"9",inner);
+  }
+
+  // ---- Emerging Terms
+  if(!favOnly){
+    const terms = b.terms.filter(t=>!query || (t.en+" "+t.zh+" "+T(t.def)+" "+T(t.trend)+" "+t.rel).toLowerCase().includes(query.toLowerCase()));
+    if(terms.length){
+      const inner = `<div class="terms">`+terms.map(t=>`<div class="term">
+        <div class="en">${hl(esc(t.en))}</div>
+        <div class="zh">${hl(esc(t.zh))}</div>
+        <div class="def">${hl(esc(T(t.def)))}</div>
+        <div><span class="k">${esc(T(UI.kWhyTrend))}:</span> ${hl(esc(T(t.trend)))}</div>
+        <div class="rel">${esc(T(UI.kRel))}: ${hl(esc(t.rel))}</div>
+        <div class="tsrc">${(t.src||[]).map(s=>`<a href="${esc(s.u)}" target="_blank" rel="noopener">${esc(s.n)} ↗</a>`).join("")}</div>
+      </div>`).join("")+`</div>`;
+      html += renderSection("terms",UI.secTerms,"10",inner,terms.length);
+    }
+  }
+
+  // empty states
+  if(!html.trim()){
+    html = `<section><div class="empty">${favOnly?esc(T(UI.favEmpty)):esc(T(UI.searchEmpty))}</div></section>`;
+  }
+
+  $("#app").innerHTML = html;
+
+  // wire stars
+  document.querySelectorAll("[data-fav]").forEach(el=>el.addEventListener("click",()=>toggleFav(el.dataset.fav)));
+}
+
+/* ============================================================
+   EVENTS
+   ============================================================ */
+$("#langBtn").addEventListener("click",()=>{lang=lang==="zh"?"en":"zh";localStorage.setItem("deib_lang",lang);render();});
+$("#themeBtn").addEventListener("click",()=>{theme=theme==="dark"?"light":"dark";localStorage.setItem("deib_theme",theme);render();});
+$("#dateSel").addEventListener("change",e=>{curDate=e.target.value;render();});
+$("#favBtn").addEventListener("click",()=>{favOnly=!favOnly;render();});
+$("#search").addEventListener("input",e=>{query=e.target.value.trim();render();});
+document.getElementById("filters").addEventListener("click",e=>{const c=e.target.closest("[data-cat]");if(c){filter=c.dataset.cat;render();}});
+
+/* ============================================================
+   Q&A ASSISTANT — grounded in the selected edition via
+   window.cowork.askClaude (built-in inference; no API key).
+   ============================================================ */
+function chatUiRefresh(){
+  $("#chTitle").textContent = T(UI.chatTitle);
+  $("#chHint").textContent = T(UI.chatHint);
+  $("#chatIn").placeholder = T(UI.chatPh);
+  $("#chatSendBtn").textContent = T(UI.chatSend);
+}
+function briefContext(){
+  const b = curBrief(); const L = it => it[lang]||it.zh;
+  const ctx = {
+    date:b.date, lastUpdated:b.lastUpdated,
+    summary:(T(b.summary)||"").replace(/<[^>]+>/g,""),
+    top5:b.top5.map(it=>({...L(it),conf:it.conf,time:it.time,sources:(it.src||[]).map(s=>s.n+" "+s.u)})),
+    market:b.market.map(m=>({name:m.nm,value:m.val,change:m.chg,why:T(m.why)})),
+    marketNote:T(b.marketNote),
+    ai:(b.ai||[]).map(it=>({...L(it),conf:it.conf})),
+    startups:(b.startups||[]).map(it=>({...L(it)})),
+    product:(b.product||[]).map(it=>({...L(it)})),
+    policy:(b.policy||[]).map(it=>({...L(it),conf:it.conf})),
+    voices:(b.voices||[]).map(it=>({...L(it),conf:it.conf})),
+    watch:b.watch.map(w=>({when:w.when,item:T({zh:w.zh,en:w.en})})),
+    terms:(b.terms||[]).map(t=>({term:t.en,zh:t.zh,def:T(t.def),why:T(t.trend)}))
+  };
+  let s = JSON.stringify(ctx);
+  if(s.length>18000) s = s.slice(0,18000)+"…";
+  return s;
+}
+function chatMsg(txt,cls){
+  const d=document.createElement("div"); d.className="ch-m "+cls; d.textContent=txt;
+  $("#chatMsgs").appendChild(d); $("#chatMsgs").scrollTop=1e6; return d;
+}
+let chatBusy=false;
+async function sendChat(q){
+  if(chatBusy||!q.trim())return;
+  chatMsg(q,"ch-user");
+  if(!(window.cowork&&window.cowork.askClaude)){ chatMsg(T(UI.chatErr),"ch-bot err"); return; }
+  chatBusy=true; $("#chatSendBtn").disabled=true;
+  const typing=document.createElement("div"); typing.className="ch-typing"; typing.textContent="…"; $("#chatMsgs").appendChild(typing); $("#chatMsgs").scrollTop=1e6;
+  const prompt = "你是《X's Daybreak Intelligence Brief》的内置问答助手。以下JSON是"+curBrief().date+"这期简报的全部内容。规则：只基于简报内容回答；引用具体数字和条目；简报没有的信息就明确说\"这期简报没有覆盖\"，不要编造；回答简洁（一般不超过150字），用与提问相同的语言（中文或英文）；涉及投资决策时提醒这不是投资建议。\n\n=== 简报数据 ===\n"+briefContext()+"\n\n=== 用户问题 ===\n"+q;
+  try{
+    const r = await window.cowork.askClaude(prompt);
+    typing.remove();
+    const txt = typeof r==="string" ? r : (r&&(r.text||r.content||r.response)) || JSON.stringify(r);
+    chatMsg(txt,"ch-bot");
+  }catch(e){
+    typing.remove(); chatMsg(T(UI.chatErr),"ch-bot err");
+  }
+  chatBusy=false; $("#chatSendBtn").disabled=false;
+}
+$("#chatFab").addEventListener("click",()=>{ $("#chatPanel").classList.toggle("hide"); chatUiRefresh();
+  if(!$("#chatMsgs").children.length){ chatMsg(lang==="zh"?"你好！我可以回答关于"+curDate+"这期简报的任何问题——试试：\n· 今天最重要的一件事是什么？\n· 政策面有什么值得注意的？\n· 对创业者意味着什么？":"Hi! Ask me anything about the "+curDate+" edition — try:\n· What's the single most important story today?\n· Anything notable on the policy front?\n· What does this mean for founders?","ch-bot"); }
+  $("#chatIn").focus(); });
+$("#chClose").addEventListener("click",()=>$("#chatPanel").classList.add("hide"));
+$("#chatForm").addEventListener("submit",e=>{e.preventDefault();const q=$("#chatIn").value;$("#chatIn").value="";sendChat(q);});
+
+render();
+chatUiRefresh();
+/* The assistant needs Claude's built-in inference. On the public web build
+   that API is absent, so hide the launcher instead of showing a dead button. */
+if(!(window.cowork&&window.cowork.askClaude)) $("#chatFab").classList.add("hide");
+</script>
+</body>
+</html>
